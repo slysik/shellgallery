@@ -77,7 +77,7 @@ class ShellSearcher:
             }
             
             logger.info(f"Searching Firecrawl for: {query}")
-            response = requests.post(url, headers=self.headers, json=payload)
+            response = requests.post(url, headers=self.headers, json=payload, timeout=30)
             
             if response.status_code == 200:
                 data = response.json()
@@ -86,6 +86,12 @@ class ShellSearcher:
                 logger.error(f"Firecrawl search failed: {response.status_code} - {response.text}")
                 return []
                 
+        except requests.exceptions.Timeout:
+            logger.error(f"Firecrawl search timeout for query: {query}")
+            return []
+        except requests.exceptions.ConnectionError:
+            logger.error(f"Firecrawl connection error for query: {query}")
+            return []
         except Exception as e:
             logger.error(f"Error in Firecrawl search: {str(e)}")
             return []
@@ -109,7 +115,7 @@ class ShellSearcher:
             }
             
             logger.info(f"Scraping URL: {url}")
-            response = requests.post(scrape_url, headers=self.headers, json=payload)
+            response = requests.post(scrape_url, headers=self.headers, json=payload, timeout=30)
             
             if response.status_code == 200:
                 return response.json().get('data', {})
@@ -117,6 +123,12 @@ class ShellSearcher:
                 logger.error(f"Firecrawl scrape failed: {response.status_code} - {response.text}")
                 return None
                 
+        except requests.exceptions.Timeout:
+            logger.error(f"Firecrawl scrape timeout for URL: {url}")
+            return None
+        except requests.exceptions.ConnectionError:
+            logger.error(f"Firecrawl connection error for URL: {url}")
+            return None
         except Exception as e:
             logger.error(f"Error in Firecrawl scrape: {str(e)}")
             return None
