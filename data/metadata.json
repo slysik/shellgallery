@@ -1,1 +1,79 @@
-{}
+{
+  "9bde6c55f5b0aaac08000ddb8be5dcf4": {
+    "id": "9bde6c55f5b0aaac08000ddb8be5dcf4",
+    "title": "Coastal Shell Picture Frame",
+    "description": "Beautiful handcrafted picture frame decorated with natural seashells collected from the beach. Perfect for displaying your favorite coastal memories.",
+    "image_url": "https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=400&h=300&fit=crop",
+    "source_url": "https://pinterest.com/pin/sample-shell-frame-1",
+    "platform": "pinterest",
+    "category": "picture_frames",
+    "is_diy": true,
+    "scraped_date": 1753737590.8825483
+  },
+  "c1288ee0de590f81b1416a32efee8704": {
+    "id": "c1288ee0de590f81b1416a32efee8704",
+    "title": "Rustic Driftwood Shell Frame",
+    "description": "Combine driftwood and shells for a stunning nautical frame. This DIY project brings the beach into your home with natural materials.",
+    "image_url": "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400&h=300&fit=crop",
+    "source_url": "https://pinterest.com/pin/sample-shell-frame-2",
+    "platform": "pinterest",
+    "category": "picture_frames",
+    "is_diy": true,
+    "scraped_date": 1753737590.882551
+  },
+  "527b1395d43f7a479a98f9acd8dc4fca": {
+    "id": "527b1395d43f7a479a98f9acd8dc4fca",
+    "title": "Elegant Shell Memory Frame",
+    "description": "Delicate shell arrangement creates an elegant frame perfect for wedding photos or special memories. Features small scallop shells and sand dollars.",
+    "image_url": "https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=400&h=300&fit=crop",
+    "source_url": "https://etsy.com/listing/sample-shell-frame-3",
+    "platform": "etsy",
+    "category": "picture_frames",
+    "is_diy": false,
+    "scraped_date": 1753737590.8825524
+  },
+  "098939feed3ba17f87863b86e532e208": {
+    "id": "098939feed3ba17f87863b86e532e208",
+    "title": "Beach Memory Shadow Box",
+    "description": "Display your beach vacation memories in this beautiful shadow box featuring sand, shells, and small treasures from your coastal adventures.",
+    "image_url": "https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=400&h=300&fit=crop",
+    "source_url": "https://pinterest.com/pin/sample-shadow-box-1",
+    "platform": "pinterest",
+    "category": "shadow_boxes",
+    "is_diy": true,
+    "scraped_date": 1753737590.8825538
+  },
+  "769496e06fba7d6b133e767d21fb5d15": {
+    "id": "769496e06fba7d6b133e767d21fb5d15",
+    "title": "Seashell Collection Display",
+    "description": "Organize and display your seashell collection in this elegant shadow box. Perfect for showcasing rare finds and creating a coastal focal point.",
+    "image_url": "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400&h=300&fit=crop",
+    "source_url": "https://pinterest.com/pin/sample-shadow-box-2",
+    "platform": "pinterest",
+    "category": "shadow_boxes",
+    "is_diy": true,
+    "scraped_date": 1753737590.8825555
+  },
+  "9982e082844fa5386036465bf0c959eb": {
+    "id": "9982e082844fa5386036465bf0c959eb",
+    "title": "Shell-Adorned Jewelry Box",
+    "description": "Handcrafted wooden jewelry box decorated with carefully selected shells and pearls. Features multiple compartments for organizing jewelry.",
+    "image_url": "https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=400&h=300&fit=crop",
+    "source_url": "https://etsy.com/listing/sample-jewelry-box-1",
+    "platform": "etsy",
+    "category": "jewelry_boxes",
+    "is_diy": false,
+    "scraped_date": 1753737590.8825572
+  },
+  "592106a17548f6b94e3699e1e2997a40": {
+    "id": "592106a17548f6b94e3699e1e2997a40",
+    "title": "Museum-Style Shell Display",
+    "description": "Professional display case perfect for educational purposes or serious shell collectors. Features labeled compartments and protective glass.",
+    "image_url": "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400&h=300&fit=crop",
+    "source_url": "https://pinterest.com/pin/sample-display-case-1",
+    "platform": "pinterest",
+    "category": "display_cases",
+    "is_diy": true,
+    "scraped_date": 1753737590.8825588
+  }
+}
