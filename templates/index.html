@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shell Collection Gallery - Handcrafted Shell Crafts</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
+    <!-- Custom CSS -->
+    <link href="/static/css/styles.css" rel="stylesheet">
+    
+    <!-- Meta tags for SEO -->
+    <meta name="description" content="Discover beautiful handcrafted shell projects including picture frames, shadow boxes, jewelry boxes, and display cases. Click any image to view the original source and tutorial.">
+    <meta name="keywords" content="shell crafts, handmade, DIY, picture frames, shadow boxes, jewelry boxes, display cases, coastal decor">
+</head>
+<body>
+    <!-- Header -->
+    <header class="coastal-header">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h1 class="display-4 mb-0">
+                        <i class="fas fa-shell-icon me-3"></i>
+                        Shell Collection Gallery
+                    </h1>
+                    <p class="lead mt-2 mb-0">Discover Beautiful Handcrafted Shell Projects</p>
+                </div>
+                <div class="col-md-4 text-md-end">
+                    <button id="scrapeBtn" class="btn btn-coastal-primary btn-lg">
+                        <i class="fas fa-sync-alt me-2"></i>
+                        Find New Crafts
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container my-5">
+        
+        <!-- Search Section -->
+        <section class="search-section mb-5">
+            <div class="row justify-content-center">
+                <div class="col-md-8">
+                    <div class="search-card">
+                        <div class="input-group input-group-lg">
+                            <span class="input-group-text">
+                                <i class="fas fa-search"></i>
+                            </span>
+                            <input type="text" 
+                                   id="searchInput" 
+                                   class="form-control" 
+                                   placeholder="Search shell crafts, frames, boxes..."
+                                   aria-label="Search shell crafts">
+                            <button class="btn btn-coastal-secondary" type="button" id="searchBtn">
+                                Search
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Categories Grid -->
+        <section class="categories-section">
+            
+            <!-- Category: Picture Frames -->
+            <div class="category-section mb-5" data-category="picture_frames">
+                <div class="category-header">
+                    <div class="row align-items-center">
+                        <div class="col">
+                            <h2 class="category-title">
+                                <i class="fas fa-picture-o me-3"></i>
+                                Shell Picture Frames
+                                <span class="badge bg-coastal-accent ms-3" id="frames-count">0</span>
+                            </h2>
+                            <p class="category-description">Handcrafted frames perfect for beach memories and coastal decor</p>
+                        </div>
+                        <div class="col-auto">
+                            <button class="btn btn-outline-coastal load-more-btn" data-category="picture_frames">
+                                <i class="fas fa-plus me-2"></i>Load More
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="image-grid" id="frames-grid">
+                    <!-- Images will be loaded here -->
+                </div>
+                <div class="loading-state" id="frames-loading" style="display: none;">
+                    <div class="text-center py-4">
+                        <div class="spinner-border text-coastal-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p class="mt-3">Finding beautiful shell picture frames...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Category: Shadow Boxes -->
+            <div class="category-section mb-5" data-category="shadow_boxes">
+                <div class="category-header">
+                    <div class="row align-items-center">
+                        <div class="col">
+                            <h2 class="category-title">
+                                <i class="fas fa-cube me-3"></i>
+                                Shadow Box Displays
+                                <span class="badge bg-coastal-accent ms-3" id="boxes-count">0</span>
+                            </h2>
+                            <p class="category-description">Elegant displays for showcasing shell collections and beach treasures</p>
+                        </div>
+                        <div class="col-auto">
+                            <button class="btn btn-outline-coastal load-more-btn" data-category="shadow_boxes">
+                                <i class="fas fa-plus me-2"></i>Load More
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="image-grid" id="boxes-grid">
+                    <!-- Images will be loaded here -->
+                </div>
+                <div class="loading-state" id="boxes-loading" style="display: none;">
+                    <div class="text-center py-4">
+                        <div class="spinner-border text-coastal-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p class="mt-3">Discovering shadow box collections...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Category: Jewelry Boxes -->
+            <div class="category-section mb-5" data-category="jewelry_boxes">
+                <div class="category-header">
+                    <div class="row align-items-center">
+                        <div class="col">
+                            <h2 class="category-title">
+                                <i class="fas fa-gem me-3"></i>
+                                Shell Jewelry Boxes
+                                <span class="badge bg-coastal-accent ms-3" id="jewelry-count">0</span>
+                            </h2>
+                            <p class="category-description">Beautiful storage solutions adorned with natural shells</p>
+                        </div>
+                        <div class="col-auto">
+                            <button class="btn btn-outline-coastal load-more-btn" data-category="jewelry_boxes">
+                                <i class="fas fa-plus me-2"></i>Load More
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="image-grid" id="jewelry-grid">
+                    <!-- Images will be loaded here -->
+                </div>
+                <div class="loading-state" id="jewelry-loading" style="display: none;">
+                    <div class="text-center py-4">
+                        <div class="spinner-border text-coastal-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p class="mt-3">Finding jewelry box inspirations...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Category: Display Cases -->
+            <div class="category-section mb-5" data-category="display_cases">
+                <div class="category-header">
+                    <div class="row align-items-center">
+                        <div class="col">
+                            <h2 class="category-title">
+                                <i class="fas fa-archive me-3"></i>
+                                Display Cases
+                                <span class="badge bg-coastal-accent ms-3" id="cases-count">0</span>
+                            </h2>
+                            <p class="category-description">Professional displays for educational and museum-style presentations</p>
+                        </div>
+                        <div class="col-auto">
+                            <button class="btn btn-outline-coastal load-more-btn" data-category="display_cases">
+                                <i class="fas fa-plus me-2"></i>Load More
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="image-grid" id="cases-grid">
+                    <!-- Images will be loaded here -->
+                </div>
+                <div class="loading-state" id="cases-loading" style="display: none;">
+                    <div class="text-center py-4">
+                        <div class="spinner-border text-coastal-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p class="mt-3">Exploring display case designs...</p>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+    </main>
+
+    <!-- Image Modal -->
+    <div class="modal fade" id="imageModal" tabindex="-1" aria-labelledby="imageModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header border-0">
+                    <h5 class="modal-title" id="imageModalLabel">Shell Craft Details</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <img id="modalImage" src="" alt="" class="img-fluid rounded">
+                        </div>
+                        <div class="col-md-6">
+                            <h6 id="modalTitle">Project Title</h6>
+                            <p id="modalDescription" class="text-muted">Project description...</p>
+                            <div class="project-meta">
+                                <span class="badge bg-coastal-secondary me-2" id="modalPlatform">Platform</span>
+                                <span class="badge bg-coastal-accent" id="modalCategory">Category</span>
+                            </div>
+                            <div class="mt-4">
+                                <button id="modalSourceBtn" class="btn btn-coastal-primary btn-lg w-100">
+                                    <i class="fas fa-external-link-alt me-2"></i>
+                                    View Original Source
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Error Toast -->
+    <div class="toast-container position-fixed bottom-0 end-0 p-3">
+        <div id="errorToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="toast-header bg-danger text-white">
+                <strong class="me-auto">Error</strong>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+            <div class="toast-body" id="errorToastBody">
+                Something went wrong. Please try again.
+            </div>
+        </div>
+    </div>
+
+    <!-- Success Toast -->
+    <div class="toast-container position-fixed bottom-0 end-0 p-3">
+        <div id="successToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="toast-header bg-success text-white">
+                <strong class="me-auto">Success</strong>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+            <div class="toast-body" id="successToastBody">
+                Operation completed successfully!
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="coastal-footer mt-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-8">
+                    <p class="mb-1"><strong>Shell Collection Gallery</strong></p>
+                    <p class="text-muted mb-0">
+                        Click any image to view the original source and tutorial. 
+                        All content is sourced from talented creators on Pinterest and Etsy.
+                    </p>
+                </div>
+                <div class="col-md-4 text-md-end">
+                    <p class="mb-0">
+                        <i class="fas fa-heart text-coastal-primary me-2"></i>
+                        Made with love for shell craft enthusiasts
+                    </p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Custom JavaScript -->
+    <script src="/static/js/gallery.js"></script>
+</body>
+</html>
