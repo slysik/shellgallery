@@ -93,6 +93,7 @@ def search_images():
             'total': len(results)
         })
     except Exception as e:
+        query = request.args.get('q', 'unknown')
         logger.error(f"Error searching for '{query}': {str(e)}")
         return jsonify({
             'success': False,

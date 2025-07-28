@@ -222,7 +222,19 @@ class ShellGallery {
     }
     
     renderImages(images, category, replace = false) {
-        const gridId = category === 'search' ? 'search-grid' : `${category.split('_')[0]}-grid`;
+        let gridId;
+        if (category === 'search') {
+            gridId = 'search-grid';
+        } else {
+            // Map category to correct grid ID
+            const gridMap = {
+                'picture_frames': 'frames-grid',
+                'shadow_boxes': 'boxes-grid',
+                'jewelry_boxes': 'jewelry-grid',
+                'display_cases': 'cases-grid'
+            };
+            gridId = gridMap[category] || `${category.split('_')[0]}-grid`;
+        }
         const grid = document.getElementById(gridId);
         
         if (!grid) {
@@ -354,7 +366,19 @@ class ShellGallery {
     }
     
     showEmptyState(category, title = 'No items found', message = 'Click "Find New Crafts" to discover content.') {
-        const gridId = category === 'search' ? 'search-grid' : `${category.split('_')[0]}-grid`;
+        let gridId;
+        if (category === 'search') {
+            gridId = 'search-grid';
+        } else {
+            // Map category to correct grid ID
+            const gridMap = {
+                'picture_frames': 'frames-grid',
+                'shadow_boxes': 'boxes-grid',
+                'jewelry_boxes': 'jewelry-grid',
+                'display_cases': 'cases-grid'
+            };
+            gridId = gridMap[category] || `${category.split('_')[0]}-grid`;
+        }
         const grid = document.getElementById(gridId);
         
         if (!grid) return;
@@ -369,7 +393,14 @@ class ShellGallery {
     }
     
     showLoading(category, show) {
-        const loadingId = `${category.split('_')[0]}-loading`;
+        // Map category to correct loading ID
+        const loadingMap = {
+            'picture_frames': 'frames-loading',
+            'shadow_boxes': 'boxes-loading', 
+            'jewelry_boxes': 'jewelry-loading',
+            'display_cases': 'cases-loading'
+        };
+        const loadingId = loadingMap[category] || `${category.split('_')[0]}-loading`;
         const loadingElement = document.getElementById(loadingId);
         
         if (loadingElement) {
