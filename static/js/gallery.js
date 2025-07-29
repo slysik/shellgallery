@@ -201,12 +201,8 @@ class ShellGallery {
     }
     
     async loadInitialData() {
-        // Load initial images for each category
-        const categories = ['picture_frames', 'shadow_boxes', 'jewelry_boxes', 'display_cases'];
-        
-        for (const category of categories) {
-            await this.loadCategoryImages(category, 6, 0); // Load 6 images initially
-        }
+        // Don't load any images initially - only load when user performs a search
+        console.log('Gallery initialized - no initial images loaded');
     }
     
     async loadCategoryImages(category, limit = 6, offset = 0) {
