@@ -131,9 +131,14 @@ class DataManager:
                     item_id = hashlib.md5(source_url.encode()).hexdigest()
                     item['id'] = item_id
                 
-                # Skip if already exists
+                # For fresh searches, update existing items instead of skipping
                 if item_id in metadata:
-                    logger.info(f"Item {item_id} already exists, skipping")
+                    logger.info(f"Item {item_id} already exists, updating category to {category}")
+                    # Update the existing item's category and timestamp
+                    metadata[item_id]['category'] = category
+                    metadata[item_id]['saved_date'] = time.time()
+                    metadata[item_id]['last_updated'] = time.time()
+                    saved_count += 1
                     continue
                 
                 # Download image
@@ -192,8 +197,8 @@ class DataManager:
                     if os.path.exists(image_path):
                         category_items.append(item)
         
-        # Sort by scraped_date (newest first)
-        category_items.sort(key=lambda x: x.get('scraped_date', 0), reverse=True)
+        # Sort by saved_date (newest first)
+        category_items.sort(key=lambda x: x.get('saved_date', 0), reverse=True)
         
         # Apply pagination
         paginated_items = category_items[offset:offset + limit]
