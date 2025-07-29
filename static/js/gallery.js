@@ -227,7 +227,7 @@ class ShellGallery {
                     ${images.map(item => `
                         <div class="image-item" data-item-id="${item.id}">
                             <div class="image-card">
-                                <img src="/static/images/${item.filename}" 
+                                <img src="/static/images/${item.local_image}" 
                                      alt="${item.title || 'Shell craft'}" 
                                      class="img-fluid" 
                                      loading="lazy"
@@ -253,24 +253,10 @@ class ShellGallery {
         resultsSection.innerHTML = resultsHTML;
     }
 
-    async loadAllCategories() {
-        const categories = ['picture_frames', 'shadow_boxes', 'jewelry_boxes', 'display_cases'];
-        
-        for (const category of categories) {
-            await this.loadCategoryImages(category, 6, 0);
-        }
-    }
-    
     async loadInitialData() {
         // Don't load any images initially - only load when user performs a search
         console.log('Gallery initialized - no initial images loaded');
     }
-    
-    async loadCategoryImages(category, limit = 6, offset = 0) {
-        if (this.isLoading[category]) return;
-        
-        this.isLoading[category] = true;
-        this.showLoading(category, true);
         
         try {
             const response = await fetch(`/api/category/${category}?limit=${limit}&offset=${offset}`);
