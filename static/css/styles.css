@@ -146,6 +146,28 @@ h1, h2, h3, h4, h5, h6 {
     transform: translateY(-1px);
 }
 
+.btn-coastal-primary-dark {
+    background: linear-gradient(135deg, #4682B4 0%, #2F4F4F 100%);
+    color: var(--white);
+    box-shadow: var(--shadow-sm);
+    border: none;
+}
+
+.btn-coastal-primary-dark:hover {
+    background: linear-gradient(135deg, #36648B 0%, #1C3A3A 100%);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+    color: var(--white);
+}
+
+.btn-coastal-primary-dark:disabled {
+    background: #9BB4C7;
+    color: rgba(255, 255, 255, 0.7);
+    transform: none;
+    box-shadow: none;
+    cursor: not-allowed;
+}
+
 .btn-outline-coastal {
     background-color: transparent;
     color: var(--accent-color);
