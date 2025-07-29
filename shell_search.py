@@ -13,10 +13,10 @@ class ShellSearcher:
     """Handles web scraping using Firecrawl API for shell craft content"""
     
     def __init__(self, api_key: str):
-        self.api_key = api_key
+        self.api_key = api_key or "fc-36f153c0b8b44aff97a734aeb8ad3ea4"  # Use provided key as fallback
         self.base_url = "https://api.firecrawl.dev"
         self.headers = {
-            "Authorization": f"Bearer {api_key}",
+            "Authorization": f"Bearer {self.api_key}",
             "Content-Type": "application/json"
         }
         
@@ -77,7 +77,7 @@ class ShellSearcher:
             }
             
             logger.info(f"Searching Firecrawl for: {query}")
-            response = requests.post(url, headers=self.headers, json=payload, timeout=30)
+            response = requests.post(url, headers=self.headers, json=payload, timeout=45)
             
             if response.status_code == 200:
                 data = response.json()
@@ -115,7 +115,7 @@ class ShellSearcher:
             }
             
             logger.info(f"Scraping URL: {url}")
-            response = requests.post(scrape_url, headers=self.headers, json=payload, timeout=30)
+            response = requests.post(scrape_url, headers=self.headers, json=payload, timeout=45)
             
             if response.status_code == 200:
                 return response.json().get('data', {})
