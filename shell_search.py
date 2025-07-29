@@ -55,43 +55,46 @@ class ShellSearcher:
         }
 
     def firecrawl_search(self, query: str, limit: int = 10) -> List[Dict[str, Any]]:
-        """Use Firecrawl search API to find content"""
-        try:
-            url = f"{self.base_url}/v0/search"
-            # Simplify query for better results
-            clean_query = query.replace("site:", "").replace("handcrafted", "").replace("DIY", "craft")
-            
-            payload = {
-                "query": clean_query,
-                "limit": min(limit, 10),
-                "pageOptions": {
-                    "onlyMainContent": True,
-                    "includeImages": True
-                }
-            }
-            
-            logger.info(f"Searching Firecrawl for: {clean_query}")
-            response = requests.post(url, headers=self.headers, json=payload, timeout=20)
-            
-            if response.status_code == 200:
-                data = response.json()
-                results = data.get('data', [])
-                if not results:
-                    logger.warning(f"No results found for: {clean_query}")
-                return results
-            else:
-                logger.error(f"Firecrawl API error: {response.status_code} - {response.text}")
-                return []
+        """Use Firecrawl search API to find content with retry logic"""
+        max_retries = 2
+        for attempt in range(max_retries):
+            try:
+                url = f"{self.base_url}/v0/search"
                 
-        except requests.exceptions.Timeout:
-            logger.error(f"Firecrawl timeout for: {query}")
-            return []
-        except requests.exceptions.ConnectionError:
-            logger.error(f"Firecrawl connection error for: {query}")
-            return []
-        except Exception as e:
-            logger.error(f"Firecrawl error: {str(e)}")
-            return []
+                payload = {
+                    "query": query,
+                    "limit": min(limit, 5),
+                    "pageOptions": {
+                        "onlyMainContent": True
+                    }
+                }
+                
+                logger.info(f"Firecrawl search attempt {attempt + 1}: {query}")
+                response = requests.post(url, headers=self.headers, json=payload, timeout=10)
+                
+                if response.status_code == 200:
+                    data = response.json()
+                    results = data.get('data', [])
+                    logger.info(f"Firecrawl found {len(results)} results")
+                    return results
+                else:
+                    logger.warning(f"Firecrawl API returned {response.status_code}: {response.text}")
+                    if attempt < max_retries - 1:
+                        time.sleep(2)
+                        continue
+                    return []
+                    
+            except (requests.exceptions.Timeout, requests.exceptions.ConnectionError) as e:
+                logger.warning(f"Network error attempt {attempt + 1}: {str(e)}")
+                if attempt < max_retries - 1:
+                    time.sleep(3)
+                    continue
+                return []
+            except Exception as e:
+                logger.error(f"Firecrawl error: {str(e)}")
+                return []
+        
+        return []
 
     def firecrawl_scrape(self, url: str) -> Optional[Dict[str, Any]]:
         """Use Firecrawl scrape API to get content from specific URL"""
