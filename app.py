@@ -122,13 +122,13 @@ def upload_search():
                 'error': 'No image selected'
             }), 400
         
-        # Check file type
+        # Check file type - also exclude HEIC which isn't supported by browsers
         allowed_extensions = {'.jpg', '.jpeg', '.png', '.webp', '.gif'}
         filename = file.filename or ''
-        if not any(filename.lower().endswith(ext) for ext in allowed_extensions):
+        if not any(filename.lower().endswith(ext) for ext in allowed_extensions) or '.heic' in filename.lower():
             return jsonify({
                 'success': False,
-                'error': 'Invalid image format. Please use JPG, PNG, WebP, or GIF.'
+                'error': 'Invalid image format. Please use JPG, PNG, WebP, or GIF. HEIC files are not supported.'
             }), 400
         
         # Create temp directory if it doesn't exist
@@ -147,7 +147,7 @@ def upload_search():
             
             if results:
                 # Process and save new images found
-                saved_count = data_manager.save_images(results, 'upload_search')
+                saved_count = data_manager.save_scraped_data(results, 'upload_search')
                 
                 return jsonify({
                     'success': True,
