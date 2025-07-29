@@ -204,9 +204,12 @@ def scrape_new_content():
                 logger.info("Fresh search requested - clearing search_results category")
                 data_manager.clear_category('search_results')
             
-            # Search for real data using Google Image Search API
-            results = {}
-            search_query = f"{query} shell crafts handmade"
+            # For text searches, search for the actual query (not just shell crafts)
+            search_type = data.get('search_type', 'general') if data else 'general'
+            if search_type == 'text_search':
+                search_query = query  # Search for exactly what user typed
+            else:
+                search_query = f"{query} shell crafts handmade"  # Default shell craft search
             
             try:
                 # Use DuckDuckGo and Bing to find real shell craft images

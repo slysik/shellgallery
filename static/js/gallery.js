@@ -279,17 +279,19 @@ class ShellGallery {
                 body: JSON.stringify({
                     query: query,
                     limit: 12,
-                    fresh_search: true
+                    fresh_search: true,
+                    search_type: 'text_search'
                 })
             });
             
             const data = await response.json();
             
             if (data.success) {
-                // Display search results and show success message
-                await this.displaySearchResults(data.images || []);
-                const imageCount = data.images ? data.images.length : 0;
-                this.showSuccess(`Found ${imageCount} new shell crafts for "${query}"`);
+                // Set search results and display them
+                this.searchResults = data.images || [];
+                this.displaySearchResults();
+                const imageCount = this.searchResults.length;
+                this.showSuccess(`Found ${imageCount} images for "${query}"`);
                 
                 // Clear the search input
                 searchInput.value = '';
