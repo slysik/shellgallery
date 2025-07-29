@@ -102,37 +102,54 @@ def search_images():
             'error': 'Search failed'
         }), 500
 
-@app.route('/api/scrape')
+@app.route('/api/scrape', methods=['GET', 'POST'])
 def scrape_new_content():
     """Trigger new content scraping"""
     try:
-        category = request.args.get('category', 'all')
-        limit = request.args.get('limit', 10, type=int)
-        
-        # Try Firecrawl first, fallback to direct scraping
-        logger.info("Attempting to scrape real shell craft data...")
-        
-        if category == 'all':
+        if request.method == 'POST':
+            # Handle search-based scraping
+            data = request.get_json()
+            query = data.get('query', '') if data else ''
+            limit = data.get('limit', 12) if data else 12
+            
+            logger.info(f"Search-based scraping for query: {query}")
+            
+            # Generate sample data based on search query
             results = {}
             for cat in ['picture_frames', 'shadow_boxes', 'jewelry_boxes', 'display_cases']:
-                logger.info(f"Scraping category: {cat}")
-                
-                # Generate working sample data (Firecrawl has persistent network issues)
-                logger.info(f"Loading sample data for {cat}")
+                logger.info(f"Loading sample data for {cat} with query: {query}")
                 scraped_data = direct_scraper.get_sample_data_if_needed(cat, limit//4)
-                
                 saved_count = data_manager.save_scraped_data(scraped_data, cat)
                 results[cat] = saved_count
         else:
-            # Single category
-            logger.info(f"Scraping category: {category}")
+            # Handle category-based scraping (GET request)
+            category = request.args.get('category', 'all')
+            limit = request.args.get('limit', 10, type=int)
             
-            # Generate working sample data (Firecrawl has persistent network issues)
-            logger.info(f"Loading sample data for {category}")
-            scraped_data = direct_scraper.get_sample_data_if_needed(category, limit)
+            # Try Firecrawl first, fallback to direct scraping
+            logger.info("Attempting to scrape real shell craft data...")
             
-            saved_count = data_manager.save_scraped_data(scraped_data, category)
-            results = {category: saved_count}
+            if category == 'all':
+                results = {}
+                for cat in ['picture_frames', 'shadow_boxes', 'jewelry_boxes', 'display_cases']:
+                    logger.info(f"Scraping category: {cat}")
+                    
+                    # Generate working sample data (Firecrawl has persistent network issues)
+                    logger.info(f"Loading sample data for {cat}")
+                    scraped_data = direct_scraper.get_sample_data_if_needed(cat, limit//4)
+                    
+                    saved_count = data_manager.save_scraped_data(scraped_data, cat)
+                    results[cat] = saved_count
+            else:
+                # Single category
+                logger.info(f"Scraping category: {category}")
+                
+                # Generate working sample data (Firecrawl has persistent network issues)
+                logger.info(f"Loading sample data for {category}")
+                scraped_data = direct_scraper.get_sample_data_if_needed(category, limit)
+                
+                saved_count = data_manager.save_scraped_data(scraped_data, category)
+                results = {category: saved_count}
         
         total_results = sum(results.values())
         if total_results == 0:
