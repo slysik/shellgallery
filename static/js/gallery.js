@@ -60,11 +60,7 @@ class ShellGallery {
             });
         });
         
-        // Scrape new content button
-        const scrapeBtn = document.getElementById('scrapeBtn');
-        if (scrapeBtn) {
-            scrapeBtn.addEventListener('click', () => this.scrapeNewContent());
-        }
+        // No scrape button - functionality moved to search
     }
     
     async loadInitialData() {
@@ -136,17 +132,31 @@ class ShellGallery {
             return;
         }
         
-        this.isSearchMode = true;
         this.showSearchLoading(true);
         
         try {
-            const response = await fetch(`/api/search?q=${encodeURIComponent(query)}`);
+            // Search for new content based on the query
+            const response = await fetch('/api/scrape', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    query: query,
+                    limit: 12
+                })
+            });
+            
             const data = await response.json();
             
             if (data.success) {
-                this.searchResults = data.results;
-                this.displaySearchResults();
-                this.showSuccess(`Found ${data.results.length} results for "${query}"`);
+                // Refresh the gallery with new search results
+                await this.loadInitialData();
+                this.updateCategoryCounts();
+                this.showSuccess(`Found new shell crafts for "${query}"`);
+                
+                // Clear the search input
+                searchInput.value = '';
             } else {
                 this.showError('Search failed: ' + data.error);
             }
@@ -467,6 +477,20 @@ class ShellGallery {
         }
     }
     
+    showSearchLoading(show) {
+        // You can add loading state UI here if needed
+        const searchBtn = document.getElementById('searchBtn');
+        if (searchBtn) {
+            if (show) {
+                searchBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Searching...';
+                searchBtn.disabled = true;
+            } else {
+                searchBtn.innerHTML = 'Search';
+                searchBtn.disabled = false;
+            }
+        }
+    }
+
     showError(message) {
         this.showToast('errorToast', message);
     }
