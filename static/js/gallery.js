@@ -159,8 +159,8 @@ class ShellGallery {
             const data = await response.json();
             
             if (data.success) {
-                alert(`Found ${data.results_count} similar images! ${data.saved_count} new items added to gallery.`);
-                // Refresh the gallery to show new results
+                // Clear previous results first, then refresh gallery
+                this.clearAllCategories();
                 this.loadAllCategories();
                 this.updateCategoryCounts();
             } else {
@@ -175,11 +175,10 @@ class ShellGallery {
         }
     }
 
-    async loadAllCategories() {
+    clearAllCategories() {
         const categories = ['picture_frames', 'shadow_boxes', 'jewelry_boxes', 'display_cases'];
         
         for (const category of categories) {
-            // Clear existing images
             const grid = document.getElementById(`${category.replace('_', '')}-grid`) || 
                         document.getElementById(`${category === 'picture_frames' ? 'frames' : 
                                                 category === 'shadow_boxes' ? 'boxes' : 
@@ -187,8 +186,15 @@ class ShellGallery {
             if (grid) {
                 grid.innerHTML = '';
                 this.currentOffsets[category] = 0;
-                await this.loadCategoryImages(category, 6, 0);
             }
+        }
+    }
+
+    async loadAllCategories() {
+        const categories = ['picture_frames', 'shadow_boxes', 'jewelry_boxes', 'display_cases'];
+        
+        for (const category of categories) {
+            await this.loadCategoryImages(category, 6, 0);
         }
     }
     
@@ -261,6 +267,8 @@ class ShellGallery {
             return;
         }
         
+        // Clear previous results first
+        this.clearAllCategories();
         this.showSearchLoading(true);
         
         try {
