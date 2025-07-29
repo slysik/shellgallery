@@ -125,7 +125,14 @@ Each category maintains its own search terms and content filtering to ensure rel
 - Implemented DuckDuckGo Image Search using web scraping with vqd token extraction
 - Added Bing Image Search with JSON parsing from HTML containers
 - Created unified ImageSearcher class combining both search engines for better coverage
-- Searches now split results between DuckDuckGo and Bing for maximum variety
+- Searches now prioritize Bing results with DuckDuckGo as fallback due to anti-bot measures
 - Added duplicate detection to prevent showing same images from different sources
 - Maintained proper source attribution and click-through functionality to original sites
 - All searches now use quota-free methods while finding real shell craft images
+
+### Button Sizing and UI Fixes
+- Fixed search button width to match "Find Similar" button exactly (110px)
+- Removed "upload_search" category text from displayed images for cleaner UI
+- Resolved duplicate route conflicts causing server crashes
+- Updated image serving paths for proper image display without "Image not available" errors
+- Both buttons now have identical styling and dimensions

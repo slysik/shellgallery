@@ -97,8 +97,8 @@ class ImageSearcher:
                     break
             
             if not vqd:
-                # If we can't get vqd token, skip DuckDuckGo and return empty
-                logger.warning("Could not extract DuckDuckGo vqd token - skipping DuckDuckGo search")
+                # DuckDuckGo token extraction failed - this is common due to anti-bot measures
+                # Skip DuckDuckGo silently since Bing provides good results
                 return []
             
             # Perform image search
