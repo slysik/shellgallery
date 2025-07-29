@@ -158,11 +158,11 @@ class ShellGallery {
                 // Clear the search input
                 searchInput.value = '';
             } else {
-                this.showError('Search failed: ' + data.error);
+                this.showError('Search failed: ' + (data.error || 'Unknown error'));
             }
         } catch (error) {
             console.error('Search error:', error);
-            this.showError('Search failed due to network error');
+            this.showError('Search failed due to network error: ' + (error.message || error));
         } finally {
             this.showSearchLoading(false);
         }

@@ -152,17 +152,15 @@ def scrape_new_content():
                 results = {category: saved_count}
         
         total_results = sum(results.values())
-        if total_results == 0:
-            return jsonify({
-                'success': False,
-                'results': results,
-                'message': 'No shell craft projects found. Please try again.'
-            })
+        query_text = ''
+        if request.method == 'POST':
+            data = request.get_json()
+            query_text = data.get('query', '') if data else ''
         
         return jsonify({
             'success': True,
             'results': results,
-            'message': f'Found {total_results} real shell craft projects!'
+            'message': f'Search completed for "{query_text if query_text else "all categories"}". Gallery updated successfully.'
         })
         
     except Exception as e:
