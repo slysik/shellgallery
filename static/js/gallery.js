@@ -213,9 +213,9 @@ class ShellGallery {
     setupImageUpload() {
         const uploadArea = document.getElementById('upload-area');
         const imageUpload = document.getElementById('imageUpload');
-        const similarSearchBtn = document.getElementById('similarSearchBtn');
+        const findSimilarBtn = document.getElementById('findSimilarBtn');
 
-        if (!uploadArea || !imageUpload || !similarSearchBtn) return;
+        if (!uploadArea || !imageUpload || !findSimilarBtn) return;
 
         // Click to upload
         uploadArea.addEventListener('click', () => {
@@ -254,11 +254,6 @@ class ShellGallery {
                 }
             }
         });
-
-        // Similar search button
-        similarSearchBtn.addEventListener('click', () => {
-            this.performSimilarSearch();
-        });
     }
 
     handleImageUpload(file) {
@@ -266,7 +261,7 @@ class ShellGallery {
         const uploadPreview = document.getElementById('upload-preview');
         const previewImg = document.getElementById('preview-img');
         const previewName = document.getElementById('preview-name');
-        const similarSearchBtn = document.getElementById('similarSearchBtn');
+        const findSimilarBtn = document.getElementById('findSimilarBtn');
 
         // Show preview
         const reader = new FileReader();
@@ -276,7 +271,7 @@ class ShellGallery {
             
             uploadPrompt.classList.add('d-none');
             uploadPreview.classList.remove('d-none');
-            similarSearchBtn.disabled = false;
+            findSimilarBtn.disabled = false;
         };
         reader.readAsDataURL(file);
     }

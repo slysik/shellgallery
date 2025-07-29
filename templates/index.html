@@ -42,47 +42,53 @@
             <div class="row justify-content-center">
                 <div class="col-md-10">
                     <div class="search-card">
-                        <!-- Text Search -->
-                        <div class="row g-2 mb-3">
-                            <div class="col-1">
-                                <span class="input-group-text h-100">
-                                    <i class="fas fa-search"></i>
-                                </span>
-                            </div>
-                            <div class="col">
-                                <input type="text" 
-                                       id="searchInput" 
-                                       class="form-control" 
-                                       placeholder="Search shell crafts, frames, boxes..."
-                                       aria-label="Search shell crafts">
-                            </div>
-                            <div class="col-auto">
-                                <button class="btn btn-coastal-secondary btn-sm" type="button" id="searchBtn" style="min-width: 110px; width: 110px;">
-                                    <i class="fas fa-search me-1"></i>Search
-                                </button>
+                        <!-- 1. Text Search -->
+                        <div class="search-method mb-4">
+                            <h6 class="text-muted mb-2"><strong>1. Text Search</strong></h6>
+                            <div class="row g-2">
+                                <div class="col-1">
+                                    <span class="input-group-text h-100">
+                                        <i class="fas fa-search"></i>
+                                    </span>
+                                </div>
+                                <div class="col">
+                                    <input type="text" 
+                                           id="searchInput" 
+                                           class="form-control" 
+                                           placeholder="Search shell crafts, frames, boxes..."
+                                           aria-label="Search shell crafts">
+                                </div>
+                                <div class="col-auto">
+                                    <button class="btn btn-coastal-primary" type="button" id="searchBtn" style="min-width: 110px; width: 110px;">
+                                        <i class="fas fa-search me-1"></i>Search
+                                    </button>
+                                </div>
                             </div>
                         </div>
 
-                        <!-- Image Upload Search -->
-                        <div class="row g-2 align-items-end">
-                            <div class="col-md-8">
-                                <div class="upload-area border-2 border-dashed rounded p-3 text-center" id="upload-area">
-                                    <input type="file" class="d-none" id="imageUpload" accept="image/*">
-                                    <div id="upload-prompt">
-                                        <i class="fas fa-camera fa-2x text-muted mb-2"></i>
-                                        <p class="mb-1">Upload an image to find similar items</p>
-                                        <small class="text-muted">Click to browse or drag and drop</small>
-                                    </div>
-                                    <div id="upload-preview" class="d-none">
-                                        <img id="preview-img" src="" alt="Preview" class="img-thumbnail mb-2" style="max-height: 100px;">
-                                        <p class="mb-0 fw-bold" id="preview-name"></p>
+                        <!-- 2. Find Similar Images -->
+                        <div class="search-method">
+                            <h6 class="text-muted mb-2"><strong>2. Find Similar Images</strong></h6>
+                            <div class="row g-2 align-items-end">
+                                <div class="col-md-8">
+                                    <div class="upload-area border-2 border-dashed rounded p-3 text-center" id="upload-area">
+                                        <input type="file" class="d-none" id="imageUpload" accept="image/*">
+                                        <div id="upload-prompt">
+                                            <i class="fas fa-camera fa-2x text-muted mb-2"></i>
+                                            <p class="mb-1">Upload an image to find similar items</p>
+                                            <small class="text-muted">Click to browse or drag and drop</small>
+                                        </div>
+                                        <div id="upload-preview" class="d-none">
+                                            <img id="preview-img" src="" alt="Preview" class="img-thumbnail mb-2" style="max-height: 100px;">
+                                            <p class="mb-0 fw-bold" id="preview-name"></p>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                            <div class="col-md-4">
-                                <button class="btn btn-coastal-secondary btn-sm" type="button" data-bs-toggle="modal" data-bs-target="#visualSearchModal" style="min-width: 110px; width: 110px;">
-                                    <i class="fas fa-images me-1"></i>Find Similar
-                                </button>
+                                <div class="col-md-4">
+                                    <button class="btn btn-coastal-secondary" type="button" id="findSimilarBtn" disabled data-bs-toggle="modal" data-bs-target="#visualSearchModal" style="min-width: 110px; width: 110px;">
+                                        <i class="fas fa-images me-1"></i>Find Similar
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
