@@ -120,10 +120,12 @@ Each category maintains its own search terms and content filtering to ensure rel
 
 ## Recent Changes
 
-### 2025-07-29: Google Image Search Integration and Real Data Implementation
-- Resolved Firecrawl API network connectivity issues by implementing Google Custom Search API
-- Integrated Google Image Search for finding authentic shell craft images from real sources
-- Successfully finding and downloading images from Etsy, Amazon, and other craft websites
-- Implemented robust image validation to ensure only successfully downloaded images are displayed
-- Cleaned up all sample/mock data entries to maintain authentic content only
-- Application now displays real shell craft images with proper source attribution and click-through functionality
+### 2025-07-29: DuckDuckGo and Bing Image Search Implementation
+- Removed Google Custom Search API dependencies to eliminate quota limitations
+- Implemented DuckDuckGo Image Search using web scraping with vqd token extraction
+- Added Bing Image Search with JSON parsing from HTML containers
+- Created unified ImageSearcher class combining both search engines for better coverage
+- Searches now split results between DuckDuckGo and Bing for maximum variety
+- Added duplicate detection to prevent showing same images from different sources
+- Maintained proper source attribution and click-through functionality to original sites
+- All searches now use quota-free methods while finding real shell craft images

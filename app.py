@@ -8,7 +8,7 @@ from shell_search import ShellSearcher
 from direct_scraper import DirectWebScraper
 from data_manager import DataManager
 from config import Config
-from google_image_search import GoogleImageSearcher
+from image_search import ImageSearcher
 
 # Load environment variables
 load_dotenv()
@@ -27,7 +27,7 @@ config = Config()
 shell_searcher = ShellSearcher(config.FIRECRAWL_API_KEY)
 direct_scraper = DirectWebScraper()
 data_manager = DataManager()
-google_searcher = GoogleImageSearcher()
+image_searcher = ImageSearcher()
 
 @app.route('/')
 def index():
@@ -147,9 +147,9 @@ def upload_search():
         file.save(temp_path)
         
         try:
-            # Use Google reverse image search
+            # Use reverse image search (related queries)
             logger.info(f"Performing reverse image search for uploaded file: {file.filename}")
-            results = google_searcher.reverse_image_search(temp_path)
+            results = image_searcher.reverse_image_search(temp_path)
             
             if results:
                 # Process and save new images found
@@ -209,9 +209,9 @@ def scrape_new_content():
             search_query = f"{query} shell crafts handmade"
             
             try:
-                # Use Google Custom Search to find real shell craft images
-                logger.info(f"Searching Google Images for: {search_query}")
-                scraped_data = google_searcher.search_images(search_query, limit)
+                # Use DuckDuckGo and Bing to find real shell craft images
+                logger.info(f"Searching for images: {search_query}")
+                scraped_data = image_searcher.search_images(search_query, limit)
                 
                 if scraped_data:
                     # Distribute results across categories based on content
@@ -236,7 +236,7 @@ def scrape_new_content():
                     results = {'search_results': 0}
                     
             except Exception as e:
-                logger.error(f"Error searching with Google Images: {str(e)}")
+                logger.error(f"Error searching for images: {str(e)}")
                 results = {'search_results': 0}
                 
             # Get the search results to display  
@@ -262,10 +262,10 @@ def scrape_new_content():
                 for cat in ['picture_frames', 'shadow_boxes', 'jewelry_boxes', 'display_cases']:
                     logger.info(f"Scraping category: {cat}")
                     
-                    # Use Google Image Search for real shell craft content
+                    # Use DuckDuckGo and Bing for real shell craft content
                     try:
-                        logger.info(f"Searching Google Images for category: {cat}")
-                        scraped_data = google_searcher.search_by_category(cat, limit//4)
+                        logger.info(f"Searching for category: {cat}")
+                        scraped_data = image_searcher.search_by_category(cat, limit//4)
                         saved_count = data_manager.save_scraped_data(scraped_data, cat)
                         results[cat] = saved_count
                         logger.info(f"Found {saved_count} new images for {cat}")
@@ -276,10 +276,10 @@ def scrape_new_content():
                 # Single category
                 logger.info(f"Scraping category: {category}")
                 
-                # Use Google Image Search for real shell craft content
+                # Use DuckDuckGo and Bing for real shell craft content
                 try:
-                    logger.info(f"Searching Google Images for category: {category}")
-                    scraped_data = google_searcher.search_by_category(category, limit)
+                    logger.info(f"Searching for category: {category}")
+                    scraped_data = image_searcher.search_by_category(category, limit)
                     logger.info(f"Found {len(scraped_data)} images for {category}")
                 except Exception as e:
                     logger.error(f"Error scraping {category}: {str(e)}")
