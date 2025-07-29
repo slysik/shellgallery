@@ -9,6 +9,7 @@ from direct_scraper import DirectWebScraper
 from data_manager import DataManager
 from config import Config
 from image_search import ImageSearcher
+from bing_visual_search import BingVisualSearch
 
 # Load environment variables
 load_dotenv()
@@ -28,6 +29,7 @@ shell_searcher = ShellSearcher(config.FIRECRAWL_API_KEY)
 direct_scraper = DirectWebScraper()
 data_manager = DataManager()
 image_searcher = ImageSearcher()
+visual_search = BingVisualSearch()
 
 @app.route('/')
 def index():
@@ -105,9 +107,9 @@ def search_images():
             'error': 'Search failed'
         }), 500
 
-@app.route('/api/upload-search', methods=['POST'])
+@app.route('/api/upload_search', methods=['POST'])
 def upload_search():
-    """Search for similar images using uploaded image"""
+    """Handle image upload and AI-enhanced visual search with keywords"""
     try:
         if 'image' not in request.files:
             return jsonify({
@@ -119,71 +121,73 @@ def upload_search():
         if file.filename == '':
             return jsonify({
                 'success': False,
-                'error': 'No image selected'
+                'error': 'No image file selected'
             }), 400
         
-        # Check if this is a fresh search request
-        fresh_search = request.form.get('fresh_search') == 'true'
-        if fresh_search:
-            logger.info("Fresh search requested - clearing upload_search category")
-            data_manager.clear_category('upload_search')
+        # Get keywords and search type
+        keywords = request.form.get('keywords', '').strip()
+        search_type = request.form.get('search_type', 'basic')
         
-        # Check file type - also exclude HEIC which isn't supported by browsers
+        # Check file type
         allowed_extensions = {'.jpg', '.jpeg', '.png', '.webp', '.gif'}
         filename = file.filename or ''
-        if not any(filename.lower().endswith(ext) for ext in allowed_extensions) or '.heic' in filename.lower():
+        if not any(filename.lower().endswith(ext) for ext in allowed_extensions):
             return jsonify({
                 'success': False,
-                'error': 'Invalid image format. Please use JPG, PNG, WebP, or GIF. HEIC files are not supported.'
+                'error': 'Invalid image format. Please use JPG, PNG, WebP, or GIF.'
             }), 400
         
-        # Create temp directory if it doesn't exist
-        temp_dir = os.path.join('data', 'temp')
+        # Save uploaded image temporarily
+        from werkzeug.utils import secure_filename
+        secure_filename_clean = secure_filename(file.filename)
+        timestamp = str(int(time.time()))
+        temp_filename = f"{timestamp}_{secure_filename_clean}"
+        temp_dir = os.path.join('data', 'uploads')
         os.makedirs(temp_dir, exist_ok=True)
+        filepath = os.path.join(temp_dir, temp_filename)
+        file.save(filepath)
         
-        # Save uploaded file temporarily
-        temp_filename = f"upload_{int(time.time())}_{file.filename}"
-        temp_path = os.path.join(temp_dir, temp_filename)
-        file.save(temp_path)
+        logger.info(f"Image uploaded for visual search: {filepath}")
+        logger.info(f"Keywords: {keywords}")
+        logger.info(f"Search type: {search_type}")
         
+        # Clear previous upload search results for fresh search
+        data_manager.clear_category('upload_search')
+        
+        # Perform enhanced visual search
+        if search_type == 'visual_enhanced':
+            results = visual_search.visual_search_with_keywords(filepath, keywords, limit=12)
+        else:
+            # Fallback to basic reverse image search
+            results = visual_search.fallback_visual_search(filepath, keywords, limit=12)
+        
+        # Save results to data manager
+        saved_count = data_manager.save_scraped_data(results, 'upload_search')
+        
+        # Get all images from upload_search category for display
+        images = data_manager.get_images_by_category('upload_search', limit=50)
+        
+        # Clean up uploaded file
         try:
-            # Use reverse image search (related queries)
-            logger.info(f"Performing reverse image search for uploaded file: {file.filename}")
-            results = image_searcher.reverse_image_search(temp_path)
-            
-            if results:
-                # Process and save new images found
-                saved_count = data_manager.save_scraped_data(results, 'upload_search')
-                
-                # Get the uploaded search results to display
-                images = data_manager.get_category_images('upload_search', limit=50)
-                
-                return jsonify({
-                    'success': True,
-                    'message': f'Found {len(results)} similar images',
-                    'results_count': len(results),
-                    'saved_count': saved_count,
-                    'images': images
-                })
-            else:
-                return jsonify({
-                    'success': True,
-                    'message': 'No similar images found',
-                    'results_count': 0,
-                    'saved_count': 0,
-                    'images': []
-                })
-                
-        finally:
-            # Clean up temp file
-            if os.path.exists(temp_path):
-                os.remove(temp_path)
+            os.remove(filepath)
+        except OSError:
+            pass
+        
+        search_description = "AI-enhanced visual search" if search_type == 'visual_enhanced' else "Visual similarity search"
+        if keywords:
+            search_description += f" with keywords: {keywords}"
+        
+        return jsonify({
+            'success': True,
+            'images': images,
+            'message': f'{search_description} found {len(images)} similar items'
+        })
         
     except Exception as e:
-        logger.error(f"Error in upload search: {str(e)}")
+        logger.error(f"Visual search error: {str(e)}")
         return jsonify({
             'success': False,
-            'error': 'Failed to process image upload'
+            'error': f'Visual search failed: {str(e)}'
         }), 500
 
 @app.route('/api/scrape', methods=['GET', 'POST'])
@@ -370,6 +374,8 @@ def serve_image(filename):
             'success': False,
             'error': 'Image not found'
         }), 404
+
+
 
 @app.errorhandler(404)
 def not_found(error):

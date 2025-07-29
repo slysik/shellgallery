@@ -70,7 +70,7 @@
                                     <input type="file" class="d-none" id="imageUpload" accept="image/*">
                                     <div id="upload-prompt">
                                         <i class="fas fa-camera fa-2x text-muted mb-2"></i>
-                                        <p class="mb-1">Upload a shell craft image to find similar items</p>
+                                        <p class="mb-1">Upload an image to find similar items</p>
                                         <small class="text-muted">Click to browse or drag and drop</small>
                                     </div>
                                     <div id="upload-preview" class="d-none">
@@ -80,7 +80,7 @@
                                 </div>
                             </div>
                             <div class="col-md-4">
-                                <button class="btn btn-coastal-secondary btn-sm" type="button" id="similarSearchBtn" disabled style="min-width: 110px; width: 110px;">
+                                <button class="btn btn-coastal-secondary btn-sm" type="button" data-bs-toggle="modal" data-bs-target="#visualSearchModal" style="min-width: 110px; width: 110px;">
                                     <i class="fas fa-images me-1"></i>Find Similar
                                 </button>
                             </div>
@@ -124,6 +124,64 @@
                             </div>
                         </div>
                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Visual Search Modal -->
+    <div class="modal fade" id="visualSearchModal" tabindex="-1" aria-labelledby="visualSearchModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header border-0">
+                    <h5 class="modal-title" id="visualSearchModalLabel">
+                        <i class="fas fa-search-plus me-2"></i>AI-Enhanced Visual Search
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">Upload Image</label>
+                        <div class="upload-area border-2 border-dashed rounded p-4 text-center" id="modal-upload-area">
+                            <input type="file" class="d-none" id="modalImageUpload" accept="image/*">
+                            <div id="modal-upload-prompt">
+                                <i class="fas fa-camera fa-3x text-coastal-primary mb-3"></i>
+                                <p class="mb-2 fw-bold">Upload an image to find similar items</p>
+                                <small class="text-muted">AI will analyze the image and combine it with your keywords</small>
+                            </div>
+                            <div id="modal-upload-preview" class="d-none">
+                                <img id="modal-preview-img" src="" alt="Preview" class="img-thumbnail mb-2" style="max-height: 150px;">
+                                <p class="mb-0 fw-bold" id="modal-preview-name"></p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label for="keywordsInput" class="form-label fw-bold">
+                            Descriptive Keywords <span class="text-muted">(Optional)</span>
+                        </label>
+                        <input type="text" 
+                               class="form-control" 
+                               id="keywordsInput" 
+                               placeholder="e.g., vintage, coastal, handmade, blue, rustic..."
+                               aria-label="Descriptive keywords">
+                        <div class="form-text">
+                            Add keywords to enhance the search. AI will analyze the image and combine it with your descriptions.
+                        </div>
+                    </div>
+                    
+                    <div class="alert alert-info d-flex align-items-center">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <div>
+                            <strong>How it works:</strong> AI analyzes your image for style, materials, and colors, then combines this with your keywords for better similarity matching.
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-coastal-primary" id="startVisualSearch" disabled>
+                        <i class="fas fa-search me-2"></i>Find Similar Items
+                    </button>
                 </div>
             </div>
         </div>

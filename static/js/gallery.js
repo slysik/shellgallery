@@ -62,6 +62,152 @@ class ShellGallery {
         
         // Image upload functionality
         this.setupImageUpload();
+        
+        // Enhanced visual search modal
+        this.setupVisualSearchModal();
+    }
+
+    setupVisualSearchModal() {
+        const modalUploadArea = document.getElementById('modal-upload-area');
+        const modalFileInput = document.getElementById('modalImageUpload');
+        const startVisualSearch = document.getElementById('startVisualSearch');
+
+        if (!modalUploadArea || !modalFileInput) return;
+
+        // Click to upload in modal
+        modalUploadArea.addEventListener('click', () => modalFileInput.click());
+
+        // Drag and drop in modal
+        modalUploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            modalUploadArea.classList.add('border-primary');
+        });
+
+        modalUploadArea.addEventListener('dragleave', () => {
+            modalUploadArea.classList.remove('border-primary');
+        });
+
+        modalUploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            modalUploadArea.classList.remove('border-primary');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                this.handleModalFileUpload(files[0]);
+            }
+        });
+
+        // File input change in modal
+        modalFileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                this.handleModalFileUpload(e.target.files[0]);
+            }
+        });
+
+        // Start visual search button
+        if (startVisualSearch) {
+            startVisualSearch.addEventListener('click', () => this.performEnhancedVisualSearch());
+        }
+
+        // Reset modal when closed
+        const modal = document.getElementById('visualSearchModal');
+        if (modal) {
+            modal.addEventListener('hidden.bs.modal', () => {
+                this.resetVisualSearchModal();
+            });
+        }
+    }
+
+    handleModalFileUpload(file) {
+        const modalUploadPrompt = document.getElementById('modal-upload-prompt');
+        const modalUploadPreview = document.getElementById('modal-upload-preview');
+        const modalPreviewImg = document.getElementById('modal-preview-img');
+        const modalPreviewName = document.getElementById('modal-preview-name');
+        const startVisualSearch = document.getElementById('startVisualSearch');
+
+        if (!file.type.startsWith('image/')) {
+            this.showError('Please upload an image file');
+            return;
+        }
+
+        if (file.size > 10 * 1024 * 1024) { // 10MB limit
+            this.showError('Image size must be less than 10MB');
+            return;
+        }
+
+        // Store the file for later upload
+        this.selectedFile = file;
+
+        // Show preview
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            modalPreviewImg.src = e.target.result;
+            modalPreviewName.textContent = file.name;
+            modalUploadPrompt.classList.add('d-none');
+            modalUploadPreview.classList.remove('d-none');
+            startVisualSearch.disabled = false;
+        };
+        reader.readAsDataURL(file);
+    }
+
+    resetVisualSearchModal() {
+        const modalUploadPrompt = document.getElementById('modal-upload-prompt');
+        const modalUploadPreview = document.getElementById('modal-upload-preview');
+        const startVisualSearch = document.getElementById('startVisualSearch');
+        const keywordsInput = document.getElementById('keywordsInput');
+
+        if (modalUploadPrompt) modalUploadPrompt.classList.remove('d-none');
+        if (modalUploadPreview) modalUploadPreview.classList.add('d-none');
+        if (startVisualSearch) startVisualSearch.disabled = true;
+        if (keywordsInput) keywordsInput.value = '';
+        
+        this.selectedFile = null;
+    }
+
+    async performEnhancedVisualSearch() {
+        if (!this.selectedFile) {
+            this.showError('Please select an image first');
+            return;
+        }
+
+        const keywordsInput = document.getElementById('keywordsInput');
+        const keywords = keywordsInput ? keywordsInput.value.trim() : '';
+        const modal = bootstrap.Modal.getInstance(document.getElementById('visualSearchModal'));
+
+        try {
+            // Close modal and show loading
+            modal.hide();
+            this.clearAllCategories();
+            this.showSearchLoading(true);
+
+            // Create form data
+            const formData = new FormData();
+            formData.append('image', this.selectedFile);
+            formData.append('keywords', keywords);
+            formData.append('search_type', 'visual_enhanced');
+
+            // Upload and search
+            const response = await fetch('/api/upload_search', {
+                method: 'POST',
+                body: formData
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                this.searchResults = data.images || [];
+                this.displaySearchResults();
+                const imageCount = this.searchResults.length;
+                this.showSuccess(`AI found ${imageCount} similar items using visual analysis${keywords ? ' and your keywords' : ''}`);
+            } else {
+                this.showError('Visual search failed: ' + (data.error || 'Unknown error'));
+            }
+
+        } catch (error) {
+            console.error('Enhanced visual search error:', error);
+            this.showError('Visual search failed due to network error');
+        } finally {
+            this.showSearchLoading(false);
+        }
     }
 
     setupImageUpload() {
