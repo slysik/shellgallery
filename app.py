@@ -117,14 +117,9 @@ def scrape_new_content():
             for cat in ['picture_frames', 'shadow_boxes', 'jewelry_boxes', 'display_cases']:
                 logger.info(f"Scraping category: {cat}")
                 
-                # Try Firecrawl first
-                try:
-                    scraped_data = shell_searcher.search_category(cat, limit=limit//4)
-                    if not scraped_data:
-                        raise Exception("No Firecrawl results")
-                except Exception as e:
-                    logger.warning(f"Firecrawl failed for {cat}, using direct scraping: {str(e)}")
-                    scraped_data = direct_scraper.search_category(cat, limit=limit//4)
+                # Use direct scraping (Firecrawl having network issues)
+                logger.info(f"Using direct scraping for {cat}")
+                scraped_data = direct_scraper.search_category(cat, limit=limit//4)
                 
                 saved_count = data_manager.save_scraped_data(scraped_data, cat)
                 results[cat] = saved_count
@@ -132,13 +127,9 @@ def scrape_new_content():
             # Single category
             logger.info(f"Scraping category: {category}")
             
-            try:
-                scraped_data = shell_searcher.search_category(category, limit=limit)
-                if not scraped_data:
-                    raise Exception("No Firecrawl results")
-            except Exception as e:
-                logger.warning(f"Firecrawl failed, using direct scraping: {str(e)}")
-                scraped_data = direct_scraper.search_category(category, limit=limit)
+            # Use direct scraping (Firecrawl having network issues)
+            logger.info(f"Using direct scraping for {category}")
+            scraped_data = direct_scraper.search_category(category, limit=limit)
             
             saved_count = data_manager.save_scraped_data(scraped_data, category)
             results = {category: saved_count}
