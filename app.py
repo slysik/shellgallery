@@ -149,18 +149,23 @@ def upload_search():
                 # Process and save new images found
                 saved_count = data_manager.save_scraped_data(results, 'upload_search')
                 
+                # Get the uploaded search results to display
+                images = data_manager.get_category_images('upload_search', limit=50)
+                
                 return jsonify({
                     'success': True,
                     'message': f'Found {len(results)} similar images',
                     'results_count': len(results),
-                    'saved_count': saved_count
+                    'saved_count': saved_count,
+                    'images': images
                 })
             else:
                 return jsonify({
                     'success': True,
                     'message': 'No similar images found',
                     'results_count': 0,
-                    'saved_count': 0
+                    'saved_count': 0,
+                    'images': []
                 })
                 
         finally:
@@ -212,15 +217,26 @@ def scrape_new_content():
                             category = 'display_cases'
                         
                         # Save individual items
-                        saved_count = data_manager.save_scraped_data([item], category)
-                        results[category] = results.get(category, 0) + saved_count
+                        saved_count = data_manager.save_scraped_data([item], 'search_results')
+                        results['search_results'] = results.get('search_results', 0) + saved_count
                 else:
                     logger.warning(f"No real images found for query: {search_query}")
-                    results = {'picture_frames': 0, 'shadow_boxes': 0, 'jewelry_boxes': 0, 'display_cases': 0}
+                    results = {'search_results': 0}
                     
             except Exception as e:
                 logger.error(f"Error searching with Google Images: {str(e)}")
-                results = {'picture_frames': 0, 'shadow_boxes': 0, 'jewelry_boxes': 0, 'display_cases': 0}
+                results = {'search_results': 0}
+                
+            # Get the search results to display  
+            images = data_manager.get_category_images('search_results', limit=50)
+            total_results = sum(results.values())
+            
+            return jsonify({
+                'success': True,
+                'message': f'Found {total_results} images for "{query}"',
+                'results_count': total_results,
+                'images': images
+            })
         else:
             # Handle category-based scraping (GET request)
             category = request.args.get('category', 'all')

@@ -134,6 +134,18 @@ class ShellGallery {
         };
         reader.readAsDataURL(file);
     }
+    
+    resetImageUpload() {
+        const uploadPrompt = document.getElementById('upload-prompt');
+        const uploadPreview = document.getElementById('upload-preview');
+        
+        if (uploadPrompt && uploadPreview) {
+            uploadPrompt.classList.remove('d-none');
+            uploadPreview.classList.add('d-none');
+        }
+        
+        document.getElementById('similarSearchBtn').disabled = true;
+    }
 
     async performSimilarSearch() {
         const imageUpload = document.getElementById('imageUpload');
@@ -162,15 +174,20 @@ class ShellGallery {
             const data = await response.json();
             
             if (data.success) {
-                // Refresh gallery with new results
-                await this.loadAllCategories();
-                this.updateCategoryCounts();
+                // Display search results and show success message
+                await this.displaySearchResults(data.images || []);
+                const imageCount = data.images ? data.images.length : 0;
+                this.showSuccess(`Found ${imageCount} similar shell crafts`);
+                
+                // Clear the image upload
+                imageUpload.value = '';
+                this.resetImageUpload();
             } else {
-                alert(`Search failed: ${data.error}`);
+                this.showError(`Search failed: ${data.error}`);
             }
         } catch (error) {
             console.error('Similar search error:', error);
-            alert('Search failed. Please try again.');
+            this.showError('Search failed. Please try again.');
         } finally {
             similarSearchBtn.disabled = false;
             similarSearchBtn.innerHTML = '<i class="fas fa-images me-2"></i>Find Similar';
@@ -178,18 +195,58 @@ class ShellGallery {
     }
 
     clearAllCategories() {
-        const categories = ['picture_frames', 'shadow_boxes', 'jewelry_boxes', 'display_cases'];
-        
-        for (const category of categories) {
-            const grid = document.getElementById(`${category.replace('_', '')}-grid`) || 
-                        document.getElementById(`${category === 'picture_frames' ? 'frames' : 
-                                                category === 'shadow_boxes' ? 'boxes' : 
-                                                category === 'jewelry_boxes' ? 'jewelry' : 'cases'}-grid`);
-            if (grid) {
-                grid.innerHTML = '';
-                this.currentOffsets[category] = 0;
-            }
+        // Clear the results section for new search results
+        const resultsSection = document.querySelector('.categories-section');
+        if (resultsSection) {
+            resultsSection.innerHTML = '<!-- Search results will appear here -->';
         }
+    }
+
+    async displaySearchResults(images) {
+        const resultsSection = document.querySelector('.categories-section');
+        if (!resultsSection || !images || images.length === 0) {
+            return;
+        }
+
+        // Create search results grid
+        const resultsHTML = `
+            <div class="search-results-section mb-5">
+                <div class="category-header mb-4">
+                    <h2 class="category-title">
+                        <i class="fas fa-search me-3"></i>
+                        Search Results
+                        <span class="badge bg-coastal-accent ms-3">${images.length}</span>
+                    </h2>
+                    <p class="category-description">Your search found these shell craft items</p>
+                </div>
+                <div class="image-grid" id="search-results-grid">
+                    ${images.map(item => `
+                        <div class="image-item" data-item-id="${item.id}">
+                            <div class="image-card">
+                                <img src="/static/images/${item.filename}" 
+                                     alt="${item.title || 'Shell craft'}" 
+                                     class="img-fluid" 
+                                     loading="lazy"
+                                     data-bs-toggle="modal" 
+                                     data-bs-target="#imageModal"
+                                     data-title="${item.title || 'Shell Craft'}"
+                                     data-url="${item.source_url || '#'}"
+                                     data-platform="${item.platform || 'Unknown'}"
+                                     data-category="${item.category || 'Craft'}">
+                                <div class="image-overlay">
+                                    <div class="overlay-content">
+                                        <h6 class="overlay-title">${item.title || 'Shell Craft'}</h6>
+                                        <p class="overlay-platform">${item.platform || 'Unknown Source'}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        `;
+        
+        resultsSection.innerHTML = resultsHTML;
     }
 
     async loadAllCategories() {
@@ -240,20 +297,8 @@ class ShellGallery {
     }
     
     async updateCategoryCounts() {
-        try {
-            const response = await fetch('/api/categories');
-            const data = await response.json();
-            
-            if (data.success && data.categories) {
-                // Update count badges
-                document.getElementById('frames-count').textContent = data.categories.picture_frames || 0;
-                document.getElementById('boxes-count').textContent = data.categories.shadow_boxes || 0;
-                document.getElementById('jewelry-count').textContent = data.categories.jewelry_boxes || 0;
-                document.getElementById('cases-count').textContent = data.categories.display_cases || 0;
-            }
-        } catch (error) {
-            console.error('Error updating category counts:', error);
-        }
+        // Category sections no longer exist - skip count updates for clean search interface
+        console.log('Category counts update skipped - using search-only interface');
     }
     
     async performSearch() {
@@ -285,10 +330,10 @@ class ShellGallery {
             const data = await response.json();
             
             if (data.success) {
-                // Refresh the gallery with new search results
-                await this.loadInitialData();
-                this.updateCategoryCounts();
-                this.showSuccess(`Found new shell crafts for "${query}"`);
+                // Display search results and show success message
+                await this.displaySearchResults(data.images || []);
+                const imageCount = data.images ? data.images.length : 0;
+                this.showSuccess(`Found ${imageCount} new shell crafts for "${query}"`);
                 
                 // Clear the search input
                 searchInput.value = '';
