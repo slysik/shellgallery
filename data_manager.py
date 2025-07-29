@@ -142,6 +142,11 @@ class DataManager:
                     local_filename = self.download_and_process_image(image_url, item_id)
                     if local_filename:
                         item['local_image'] = local_filename
+                        # Verify the file actually exists on disk
+                        local_path = os.path.join(self.images_dir, local_filename)
+                        if not os.path.exists(local_path):
+                            logger.warning(f"Downloaded image file not found: {local_filename}")
+                            continue
                     else:
                         logger.warning(f"Failed to download image for {item_id}")
                         continue
@@ -174,14 +179,18 @@ class DataManager:
         return saved_count
 
     def get_category_images(self, category: str, limit: int = 20, offset: int = 0) -> List[Dict[str, Any]]:
-        """Get images for a specific category"""
+        """Get images for a specific category with valid local files only"""
         metadata = self._load_metadata()
         
-        # Filter by category
-        category_items = [
-            item for item in metadata.values() 
-            if item.get('category') == category
-        ]
+        # Filter by category and verify local image exists
+        category_items = []
+        for item in metadata.values():
+            if item.get('category') == category:
+                local_image = item.get('local_image')
+                if local_image:
+                    image_path = os.path.join(self.images_dir, local_image)
+                    if os.path.exists(image_path):
+                        category_items.append(item)
         
         # Sort by scraped_date (newest first)
         category_items.sort(key=lambda x: x.get('scraped_date', 0), reverse=True)
@@ -245,13 +254,20 @@ class DataManager:
         return matching_items
     
     def get_images_by_category(self, category: str, limit: int = 12, offset: int = 0) -> List[Dict[str, Any]]:
-        """Get images filtered by category"""
+        """Get images filtered by category with valid local files only"""
         metadata = self._load_metadata()
         category_images = []
         
         for item_id, item_data in metadata.items():
             if item_data.get('category') == category and item_data.get('local_image'):
-                category_images.append(item_data)
+                # Verify the image file actually exists
+                local_image = item_data.get('local_image')
+                if local_image:
+                    image_path = os.path.join(self.images_dir, local_image)
+                    if os.path.exists(image_path):
+                        category_images.append(item_data)
+                    else:
+                        logger.warning(f"Image file missing for {item_id}: {local_image}")
         
         # Sort by saved_date (newest first)
         category_images.sort(key=lambda x: x.get('saved_date', 0), reverse=True)
@@ -260,13 +276,19 @@ class DataManager:
         return category_images[offset:offset + limit]
     
     def get_all_images(self, limit: int = 12, offset: int = 0) -> List[Dict[str, Any]]:
-        """Get all images across all categories"""
+        """Get all images across all categories with valid local files only"""
         metadata = self._load_metadata()
         all_images = []
         
         for item_id, item_data in metadata.items():
-            if item_data.get('local_image'):
-                all_images.append(item_data)
+            local_image = item_data.get('local_image')
+            if local_image:
+                # Verify the image file actually exists
+                image_path = os.path.join(self.images_dir, local_image)
+                if os.path.exists(image_path):
+                    all_images.append(item_data)
+                else:
+                    logger.warning(f"Image file missing for {item_id}: {local_image}")
         
         # Sort by saved_date (newest first)
         all_images.sort(key=lambda x: x.get('saved_date', 0), reverse=True)
