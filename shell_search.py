@@ -74,9 +74,17 @@ class ShellSearcher:
                 
                 if response.status_code == 200:
                     data = response.json()
-                    results = data.get('data', [])
-                    logger.info(f"Firecrawl found {len(results)} results")
-                    return results
+                    raw_results = data.get('data', [])
+                    logger.info(f"Firecrawl found {len(raw_results)} results")
+                    
+                    # Process results to extract proper format with images
+                    processed_results = []
+                    for result in raw_results:
+                        processed_item = self.process_firecrawl_result(result)
+                        if processed_item:
+                            processed_results.append(processed_item)
+                    
+                    return processed_results
                 else:
                     logger.warning(f"Firecrawl API returned {response.status_code}: {response.text}")
                     if attempt < max_retries - 1:
@@ -155,6 +163,99 @@ class ShellSearcher:
                 continue
         
         return results
+
+    def process_firecrawl_result(self, result: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+        """Process a single Firecrawl search result to extract usable data"""
+        try:
+            # Extract basic information
+            title = result.get('title', '').strip()
+            url = result.get('url', '').strip()
+            description = result.get('description', '').strip()
+            
+            if not title or not url:
+                return None
+            
+            # Try to extract images from metadata or content
+            image_url = None
+            
+            # Check for image in metadata
+            metadata = result.get('metadata', {})
+            if 'image' in metadata:
+                image_url = metadata['image']
+            elif 'og:image' in metadata:
+                image_url = metadata['og:image']
+            elif 'twitter:image' in metadata:
+                image_url = metadata['twitter:image']
+            
+            # If no image in metadata, scrape the page
+            if not image_url:
+                scraped_content = self.firecrawl_scrape(url)
+                if scraped_content:
+                    # Try to extract images from the scraped content
+                    content_html = scraped_content.get('html', '')
+                    if content_html:
+                        import re
+                        # Look for image tags
+                        img_pattern = r'<img[^>]+src=["\']([^"\']+)["\'][^>]*>'
+                        img_matches = re.findall(img_pattern, content_html, re.IGNORECASE)
+                        
+                        # Filter for valid image URLs
+                        for img_src in img_matches:
+                            if img_src.startswith('http') and any(ext in img_src.lower() for ext in ['.jpg', '.jpeg', '.png', '.webp']):
+                                image_url = img_src
+                                break
+            
+            # If still no image, try common social media patterns
+            if not image_url and any(site in url.lower() for site in ['pinterest', 'etsy', 'instagram']):
+                # Use a placeholder approach - scrape the actual page for images
+                try:
+                    import requests
+                    page_response = requests.get(url, timeout=10)
+                    if page_response.status_code == 200:
+                        import re
+                        # Look for Pinterest pin images
+                        if 'pinterest' in url:
+                            pin_img_pattern = r'"images":{"orig":{"url":"([^"]+)"'
+                            matches = re.findall(pin_img_pattern, page_response.text)
+                            if matches:
+                                image_url = matches[0]
+                        # Look for Etsy product images
+                        elif 'etsy' in url:
+                            etsy_img_pattern = r'"url_fullxfull":"([^"]+)"'
+                            matches = re.findall(etsy_img_pattern, page_response.text)
+                            if matches:
+                                image_url = matches[0]
+                except Exception as e:
+                    logger.warning(f"Could not extract image from {url}: {str(e)}")
+            
+            # Create standardized result
+            processed_result = {
+                'id': hashlib.md5(url.encode()).hexdigest(),
+                'title': title,
+                'description': description,
+                'source_url': url,
+                'image_url': image_url,
+                'platform': self.detect_platform(url)
+            }
+            
+            return processed_result if image_url else None
+            
+        except Exception as e:
+            logger.error(f"Error processing Firecrawl result: {str(e)}")
+            return None
+
+    def detect_platform(self, url: str) -> str:
+        """Detect the platform/source of a URL"""
+        if 'pinterest' in url.lower():
+            return 'Pinterest'
+        elif 'etsy' in url.lower():
+            return 'Etsy'
+        elif 'instagram' in url.lower():
+            return 'Instagram'
+        elif 'facebook' in url.lower():
+            return 'Facebook'
+        else:
+            return 'Web'
 
     def search_etsy(self, query: str, limit: int = 10) -> List[Dict[str, Any]]:
         """Search Etsy for shell craft products"""

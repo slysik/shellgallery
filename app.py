@@ -7,6 +7,7 @@ from shell_search import ShellSearcher
 from direct_scraper import DirectWebScraper
 from data_manager import DataManager
 from config import Config
+from google_image_search import GoogleImageSearcher
 
 # Load environment variables
 load_dotenv()
@@ -25,6 +26,7 @@ config = Config()
 shell_searcher = ShellSearcher(config.FIRECRAWL_API_KEY)
 direct_scraper = DirectWebScraper()
 data_manager = DataManager()
+google_searcher = GoogleImageSearcher()
 
 @app.route('/')
 def index():
@@ -114,13 +116,14 @@ def scrape_new_content():
             
             logger.info(f"Search-based scraping for query: {query}")
             
-            # Search for real data using Firecrawl API with the user's query
+            # Search for real data using Google Image Search API
             results = {}
             search_query = f"{query} shell crafts handmade"
             
             try:
-                # Use Firecrawl to search for real content
-                scraped_data = shell_searcher.firecrawl_search(search_query, limit)
+                # Use Google Custom Search to find real shell craft images
+                logger.info(f"Searching Google Images for: {search_query}")
+                scraped_data = google_searcher.search_images(search_query, limit)
                 
                 if scraped_data:
                     # Distribute results across categories based on content
@@ -141,11 +144,11 @@ def scrape_new_content():
                         saved_count = data_manager.save_scraped_data([item], category)
                         results[category] = results.get(category, 0) + saved_count
                 else:
-                    logger.warning(f"No real data found for query: {search_query}")
+                    logger.warning(f"No real images found for query: {search_query}")
                     results = {'picture_frames': 0, 'shadow_boxes': 0, 'jewelry_boxes': 0, 'display_cases': 0}
                     
             except Exception as e:
-                logger.error(f"Error searching with Firecrawl: {str(e)}")
+                logger.error(f"Error searching with Google Images: {str(e)}")
                 results = {'picture_frames': 0, 'shadow_boxes': 0, 'jewelry_boxes': 0, 'display_cases': 0}
         else:
             # Handle category-based scraping (GET request)
@@ -160,16 +163,13 @@ def scrape_new_content():
                 for cat in ['picture_frames', 'shadow_boxes', 'jewelry_boxes', 'display_cases']:
                     logger.info(f"Scraping category: {cat}")
                     
-                    # Use Firecrawl to search for real shell craft content
+                    # Use Google Image Search for real shell craft content
                     try:
-                        search_terms = shell_searcher.category_search_terms.get(cat, [])
-                        if search_terms:
-                            search_query = f"{search_terms[0]} handmade shell craft"
-                            scraped_data = shell_searcher.firecrawl_search(search_query, limit//4)
-                            saved_count = data_manager.save_scraped_data(scraped_data, cat)
-                            results[cat] = saved_count
-                        else:
-                            results[cat] = 0
+                        logger.info(f"Searching Google Images for category: {cat}")
+                        scraped_data = google_searcher.search_by_category(cat, limit//4)
+                        saved_count = data_manager.save_scraped_data(scraped_data, cat)
+                        results[cat] = saved_count
+                        logger.info(f"Found {saved_count} new images for {cat}")
                     except Exception as e:
                         logger.error(f"Error scraping {cat}: {str(e)}")
                         results[cat] = 0
@@ -177,14 +177,11 @@ def scrape_new_content():
                 # Single category
                 logger.info(f"Scraping category: {category}")
                 
-                # Use Firecrawl to search for real shell craft content
+                # Use Google Image Search for real shell craft content
                 try:
-                    search_terms = shell_searcher.category_search_terms.get(category, [])
-                    if search_terms:
-                        search_query = f"{search_terms[0]} handmade shell craft"
-                        scraped_data = shell_searcher.firecrawl_search(search_query, limit)
-                    else:
-                        scraped_data = []
+                    logger.info(f"Searching Google Images for category: {category}")
+                    scraped_data = google_searcher.search_by_category(category, limit)
+                    logger.info(f"Found {len(scraped_data)} images for {category}")
                 except Exception as e:
                     logger.error(f"Error scraping {category}: {str(e)}")
                     scraped_data = []
