@@ -127,5 +127,57 @@
     "scraped_date": 1753799158.9531882,
     "local_image": "224208853e743e345deea39149777e1b.jpg",
     "saved_date": 1753799159.0168226
+  },
+  "328fae9b6ccb9bbb3732440e6e697184": {
+    "id": "328fae9b6ccb9bbb3732440e6e697184",
+    "title": "Beach Memory Frame",
+    "description": "Beautiful picture frames featuring natural seashells and coastal elements.",
+    "image_url": "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400&h=300&fit=crop",
+    "source_url": "https://pinterest.com/sample/picture_frames/1",
+    "platform": "pinterest",
+    "category": "picture_frames",
+    "is_diy": true,
+    "scraped_date": 1753799534.7657168,
+    "local_image": "328fae9b6ccb9bbb3732440e6e697184.jpg",
+    "saved_date": 1753799534.876999
+  },
+  "2fa3ccc2a3f1ae2a5741359da990fd72": {
+    "id": "2fa3ccc2a3f1ae2a5741359da990fd72",
+    "title": "Seashell Collection Display",
+    "description": "Beautiful shadow boxes featuring natural seashells and coastal elements.",
+    "image_url": "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400&h=300&fit=crop",
+    "source_url": "https://pinterest.com/sample/shadow_boxes/1",
+    "platform": "pinterest",
+    "category": "shadow_boxes",
+    "is_diy": true,
+    "scraped_date": 1753799535.3119524,
+    "local_image": "2fa3ccc2a3f1ae2a5741359da990fd72.jpg",
+    "saved_date": 1753799535.3743768
+  },
+  "7cecb8b85a79e113b51a27fbb286839d": {
+    "id": "7cecb8b85a79e113b51a27fbb286839d",
+    "title": "Coastal Keepsake Box",
+    "description": "Beautiful jewelry boxes featuring natural seashells and coastal elements.",
+    "image_url": "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400&h=300&fit=crop",
+    "source_url": "https://pinterest.com/sample/jewelry_boxes/1",
+    "platform": "pinterest",
+    "category": "jewelry_boxes",
+    "is_diy": true,
+    "scraped_date": 1753799535.4408963,
+    "local_image": "7cecb8b85a79e113b51a27fbb286839d.jpg",
+    "saved_date": 1753799535.5041733
+  },
+  "f3f89097495e0d59b04302f7ab34cd1d": {
+    "id": "f3f89097495e0d59b04302f7ab34cd1d",
+    "title": "Museum-Style Shell Case",
+    "description": "Beautiful display cases featuring natural seashells and coastal elements.",
+    "image_url": "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400&h=300&fit=crop",
+    "source_url": "https://pinterest.com/sample/display_cases/1",
+    "platform": "pinterest",
+    "category": "display_cases",
+    "is_diy": true,
+    "scraped_date": 1753799535.5613263,
+    "local_image": "f3f89097495e0d59b04302f7ab34cd1d.jpg",
+    "saved_date": 1753799535.6268306
   }
 }
