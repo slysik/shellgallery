@@ -6,8 +6,12 @@ import os
 import requests
 import logging
 import hashlib
+import json
+import random
+import time
 from typing import List, Dict, Any, Optional
-from urllib.parse import quote
+from urllib.parse import quote, quote_plus
+from bs4 import BeautifulSoup
 
 logger = logging.getLogger(__name__)
 
@@ -18,6 +22,12 @@ class GoogleImageSearcher:
         self.api_key = os.environ.get('GOOGLE_CUSTOM_SEARCH_API_KEY')
         self.search_engine_id = os.environ.get('GOOGLE_CUSTOM_SEARCH_ENGINE_ID')
         self.base_url = "https://www.googleapis.com/customsearch/v1"
+        
+        # User agents for alternative searches
+        self.user_agents = [
+            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+            'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+        ]
         
         if not self.api_key or not self.search_engine_id:
             logger.error("Google Custom Search API credentials not found")
@@ -95,10 +105,18 @@ class GoogleImageSearcher:
                 return processed_results
             else:
                 logger.error(f"Google API error {response.status_code}: {response.text}")
+                # Check if quota exceeded
+                if response.status_code == 429 or 'quota' in response.text.lower():
+                    logger.info("Google quota exceeded, switching to Bing Image Search")
+                    return self.search_bing_images(query, limit)
                 return []
                 
         except Exception as e:
             logger.error(f"Error searching Google Images: {str(e)}")
+            # Check if quota exceeded in exception
+            if '429' in str(e) or 'quota' in str(e).lower():
+                logger.info("Google quota exceeded, switching to Bing Image Search")
+                return self.search_bing_images(query, limit)
             return []
     
     def process_google_result(self, item: Dict[str, Any], query: str) -> Optional[Dict[str, Any]]:
@@ -193,4 +211,70 @@ class GoogleImageSearcher:
             results = self.search_images(queries[0], limit)
             all_results.extend(results)
         
-        return all_results[:limit]
+        return all_results
+    
+    def get_headers(self):
+        """Get random headers to avoid blocking"""
+        return {
+            'User-Agent': random.choice(self.user_agents),
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+            'Accept-Language': 'en-US,en;q=0.5',
+            'Accept-Encoding': 'gzip, deflate',
+            'Connection': 'keep-alive',
+            'Upgrade-Insecure-Requests': '1',
+        }
+    
+    def search_bing_images(self, query: str, limit: int = 10) -> List[Dict[str, Any]]:
+        """Fallback search using Bing Images when Google quota is exhausted"""
+        try:
+            logger.info(f"Searching Bing Images for: {query}")
+            search_url = f"https://www.bing.com/images/search?q={quote_plus(query)}&form=HDRSC2"
+            
+            response = requests.get(search_url, headers=self.get_headers(), timeout=15)
+            response.raise_for_status()
+            
+            soup = BeautifulSoup(response.content, 'html.parser')
+            
+            # Find image containers with proper error handling
+            image_containers = soup.find_all('a', class_='iusc')
+            
+            results = []
+            for container in image_containers[:limit]:
+                try:
+                    # Extract image data from the container
+                    m_attr = container.get('m')
+                    if m_attr:
+                        try:
+                            image_data = json.loads(m_attr)
+                            
+                            # Extract required fields with safe defaults
+                            title = image_data.get('t', 'Shell Craft')
+                            image_url = image_data.get('murl', '')
+                            source_url = image_data.get('purl', '')
+                            
+                            if image_url and source_url:
+                                result = {
+                                    'id': hashlib.md5(image_url.encode()).hexdigest(),
+                                    'title': title,
+                                    'image_url': image_url,
+                                    'source_url': source_url,
+                                    'platform': self.detect_platform(source_url),
+                                    'description': f"Shell craft found via Bing Images search for '{query}'",
+                                    'search_query': query
+                                }
+                                results.append(result)
+                                
+                        except (json.JSONDecodeError, KeyError) as e:
+                            logger.debug(f"Error parsing Bing image data: {e}")
+                            continue
+                            
+                except Exception as e:
+                    logger.debug(f"Error processing Bing container: {e}")
+                    continue
+            
+            logger.info(f"Bing found {len(results)} image results")
+            return results
+            
+        except Exception as e:
+            logger.error(f"Bing search error: {e}")
+            return [][:limit]

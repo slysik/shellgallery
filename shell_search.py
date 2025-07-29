@@ -6,6 +6,7 @@ import json
 import hashlib
 from urllib.parse import urlparse, urljoin
 from typing import List, Dict, Any, Optional
+from alternative_image_search import AlternativeImageSearch
 
 logger = logging.getLogger(__name__)
 
@@ -19,6 +20,9 @@ class ShellSearcher:
             "Authorization": f"Bearer {self.api_key}",
             "Content-Type": "application/json"
         }
+        
+        # Initialize alternative search when API quotas are exhausted
+        self.alternative_search = AlternativeImageSearch()
         
         # Category-specific search terms - simplified for better API results
         self.search_terms = {
