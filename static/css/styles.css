@@ -188,6 +188,29 @@ h1, h2, h3, h4, h5, h6 {
     box-shadow: 0 0 0 0.2rem rgba(135, 206, 235, 0.25);
 }
 
+/* Upload Area */
+.upload-area {
+    border-color: var(--accent-color) !important;
+    background-color: rgba(135, 206, 250, 0.1);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-height: 120px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.upload-area:hover {
+    background-color: rgba(135, 206, 250, 0.2);
+    border-color: var(--primary-color) !important;
+}
+
+.upload-area.dragover {
+    background-color: rgba(135, 206, 250, 0.3);
+    border-color: var(--primary-color) !important;
+    border-style: solid !important;
+}
+
 /* Category Section */
 .category-section {
     margin-bottom: var(--spacing-xl);

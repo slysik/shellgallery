@@ -60,7 +60,136 @@ class ShellGallery {
             });
         });
         
-        // No scrape button - functionality moved to search
+        // Image upload functionality
+        this.setupImageUpload();
+    }
+
+    setupImageUpload() {
+        const uploadArea = document.getElementById('upload-area');
+        const imageUpload = document.getElementById('imageUpload');
+        const similarSearchBtn = document.getElementById('similarSearchBtn');
+
+        if (!uploadArea || !imageUpload || !similarSearchBtn) return;
+
+        // Click to upload
+        uploadArea.addEventListener('click', () => {
+            imageUpload.click();
+        });
+
+        // File selection handler
+        imageUpload.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                this.handleImageUpload(file);
+            }
+        });
+
+        // Drag and drop functionality
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+
+        uploadArea.addEventListener('dragleave', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                const file = files[0];
+                if (file.type.startsWith('image/')) {
+                    imageUpload.files = files;
+                    this.handleImageUpload(file);
+                }
+            }
+        });
+
+        // Similar search button
+        similarSearchBtn.addEventListener('click', () => {
+            this.performSimilarSearch();
+        });
+    }
+
+    handleImageUpload(file) {
+        const uploadPrompt = document.getElementById('upload-prompt');
+        const uploadPreview = document.getElementById('upload-preview');
+        const previewImg = document.getElementById('preview-img');
+        const previewName = document.getElementById('preview-name');
+        const similarSearchBtn = document.getElementById('similarSearchBtn');
+
+        // Show preview
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            previewImg.src = e.target.result;
+            previewName.textContent = file.name;
+            
+            uploadPrompt.classList.add('d-none');
+            uploadPreview.classList.remove('d-none');
+            similarSearchBtn.disabled = false;
+        };
+        reader.readAsDataURL(file);
+    }
+
+    async performSimilarSearch() {
+        const imageUpload = document.getElementById('imageUpload');
+        const similarSearchBtn = document.getElementById('similarSearchBtn');
+        
+        if (!imageUpload.files[0]) {
+            alert('Please select an image first');
+            return;
+        }
+
+        try {
+            similarSearchBtn.disabled = true;
+            similarSearchBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Searching...';
+
+            const formData = new FormData();
+            formData.append('image', imageUpload.files[0]);
+
+            const response = await fetch('/api/upload-search', {
+                method: 'POST',
+                body: formData
+            });
+
+            const data = await response.json();
+            
+            if (data.success) {
+                alert(`Found ${data.results_count} similar images! ${data.saved_count} new items added to gallery.`);
+                // Refresh the gallery to show new results
+                this.loadAllCategories();
+                this.updateCategoryCounts();
+            } else {
+                alert(`Search failed: ${data.error}`);
+            }
+        } catch (error) {
+            console.error('Similar search error:', error);
+            alert('Search failed. Please try again.');
+        } finally {
+            similarSearchBtn.disabled = false;
+            similarSearchBtn.innerHTML = '<i class="fas fa-images me-2"></i>Find Similar';
+        }
+    }
+
+    async loadAllCategories() {
+        const categories = ['picture_frames', 'shadow_boxes', 'jewelry_boxes', 'display_cases'];
+        
+        for (const category of categories) {
+            // Clear existing images
+            const grid = document.getElementById(`${category.replace('_', '')}-grid`) || 
+                        document.getElementById(`${category === 'picture_frames' ? 'frames' : 
+                                                category === 'shadow_boxes' ? 'boxes' : 
+                                                category === 'jewelry_boxes' ? 'jewelry' : 'cases'}-grid`);
+            if (grid) {
+                grid.innerHTML = '';
+                this.currentOffsets[category] = 0;
+                await this.loadCategoryImages(category, 6, 0);
+            }
+        }
     }
     
     async loadInitialData() {

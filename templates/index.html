@@ -40,9 +40,10 @@
         <!-- Search Section -->
         <section class="search-section mb-5">
             <div class="row justify-content-center">
-                <div class="col-md-8">
+                <div class="col-md-10">
                     <div class="search-card">
-                        <div class="input-group input-group-lg">
+                        <!-- Text Search -->
+                        <div class="input-group input-group-lg mb-3">
                             <span class="input-group-text">
                                 <i class="fas fa-search"></i>
                             </span>
@@ -54,6 +55,30 @@
                             <button class="btn btn-coastal-secondary" type="button" id="searchBtn">
                                 Search
                             </button>
+                        </div>
+
+                        <!-- Image Upload Search -->
+                        <div class="row g-2">
+                            <div class="col-md-8">
+                                <div class="upload-area border-2 border-dashed rounded p-3 text-center" id="upload-area">
+                                    <input type="file" class="d-none" id="imageUpload" accept="image/*">
+                                    <div id="upload-prompt">
+                                        <i class="fas fa-camera fa-2x text-muted mb-2"></i>
+                                        <p class="mb-1">Upload a shell craft image to find similar items</p>
+                                        <small class="text-muted">Click to browse or drag and drop</small>
+                                    </div>
+                                    <div id="upload-preview" class="d-none">
+                                        <img id="preview-img" src="" alt="Preview" class="img-thumbnail mb-2" style="max-height: 100px;">
+                                        <p class="mb-0 fw-bold" id="preview-name"></p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <button class="btn btn-outline-coastal btn-lg w-100 h-100" type="button" id="similarSearchBtn" disabled>
+                                    <i class="fas fa-images me-2"></i>
+                                    Find Similar
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>

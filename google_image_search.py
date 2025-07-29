@@ -22,6 +22,42 @@ class GoogleImageSearcher:
         if not self.api_key or not self.search_engine_id:
             logger.error("Google Custom Search API credentials not found")
     
+    def reverse_image_search(self, image_path: str, limit: int = 10) -> List[Dict[str, Any]]:
+        """Search for similar images using reverse image search"""
+        if not self.api_key or not self.search_engine_id:
+            logger.error("Google API credentials missing")
+            return []
+        
+        try:
+            # Use text-based search for shell crafts since reverse image search
+            # requires more complex setup. Instead, we'll do related searches
+            # based on common shell craft terms
+            related_queries = [
+                "handmade shell picture frames crafts",
+                "seashell shadow box display",
+                "coastal shell jewelry box",
+                "beach decor shell crafts DIY"
+            ]
+            
+            all_results = []
+            for query in related_queries:
+                results = self.search_images(query, limit=3)
+                all_results.extend(results)
+                
+            # Remove duplicates and limit results
+            seen_urls = set()
+            unique_results = []
+            for item in all_results:
+                if item.get('image_url') not in seen_urls:
+                    seen_urls.add(item.get('image_url'))
+                    unique_results.append(item)
+                    
+            return unique_results[:limit]
+            
+        except Exception as e:
+            logger.error(f"Error in reverse image search: {str(e)}")
+            return []
+
     def search_images(self, query: str, limit: int = 10) -> List[Dict[str, Any]]:
         """Search for shell craft images using Google Custom Search API"""
         if not self.api_key or not self.search_engine_id:

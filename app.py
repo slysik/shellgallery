@@ -1,5 +1,6 @@
 import os
 import logging
+import time
 from flask import Flask, render_template, jsonify, request, send_from_directory
 from flask_cors import CORS
 from dotenv import load_dotenv
@@ -102,6 +103,76 @@ def search_images():
         return jsonify({
             'success': False,
             'error': 'Search failed'
+        }), 500
+
+@app.route('/api/upload-search', methods=['POST'])
+def upload_search():
+    """Search for similar images using uploaded image"""
+    try:
+        if 'image' not in request.files:
+            return jsonify({
+                'success': False,
+                'error': 'No image file provided'
+            }), 400
+        
+        file = request.files['image']
+        if file.filename == '':
+            return jsonify({
+                'success': False,
+                'error': 'No image selected'
+            }), 400
+        
+        # Check file type
+        allowed_extensions = {'.jpg', '.jpeg', '.png', '.webp', '.gif'}
+        filename = file.filename or ''
+        if not any(filename.lower().endswith(ext) for ext in allowed_extensions):
+            return jsonify({
+                'success': False,
+                'error': 'Invalid image format. Please use JPG, PNG, WebP, or GIF.'
+            }), 400
+        
+        # Create temp directory if it doesn't exist
+        temp_dir = os.path.join('data', 'temp')
+        os.makedirs(temp_dir, exist_ok=True)
+        
+        # Save uploaded file temporarily
+        temp_filename = f"upload_{int(time.time())}_{file.filename}"
+        temp_path = os.path.join(temp_dir, temp_filename)
+        file.save(temp_path)
+        
+        try:
+            # Use Google reverse image search
+            logger.info(f"Performing reverse image search for uploaded file: {file.filename}")
+            results = google_searcher.reverse_image_search(temp_path)
+            
+            if results:
+                # Process and save new images found
+                saved_count = data_manager.save_images(results, 'upload_search')
+                
+                return jsonify({
+                    'success': True,
+                    'message': f'Found {len(results)} similar images',
+                    'results_count': len(results),
+                    'saved_count': saved_count
+                })
+            else:
+                return jsonify({
+                    'success': True,
+                    'message': 'No similar images found',
+                    'results_count': 0,
+                    'saved_count': 0
+                })
+                
+        finally:
+            # Clean up temp file
+            if os.path.exists(temp_path):
+                os.remove(temp_path)
+        
+    except Exception as e:
+        logger.error(f"Error in upload search: {str(e)}")
+        return jsonify({
+            'success': False,
+            'error': 'Failed to process image upload'
         }), 500
 
 @app.route('/api/scrape', methods=['GET', 'POST'])
