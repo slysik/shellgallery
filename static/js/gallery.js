@@ -180,7 +180,8 @@ class ShellGallery {
                 const images = data.images || [];
                 console.log('Images to display:', images); // Debug log
                 
-                await this.displaySearchResults(images);
+                this.searchResults = images;
+                this.displaySearchResults();
                 // Only show success message if we have results
                 if (images.length > 0) {
                     this.showSuccess(`Found ${images.length} similar shell crafts`);
@@ -209,69 +210,7 @@ class ShellGallery {
         }
     }
 
-    async displaySearchResults(images) {
-        const resultsSection = document.querySelector('.categories-section');
-        if (!resultsSection) {
-            return;
-        }
-        
-        // Always display results section, even if empty
-        if (!images || images.length === 0) {
-            resultsSection.innerHTML = `
-                <div class="search-results-section mb-5">
-                    <div class="category-header mb-4">
-                        <h2 class="category-title">
-                            <i class="fas fa-search me-3"></i>
-                            Search Results
-                            <span class="badge bg-coastal-accent ms-3">0</span>
-                        </h2>
-                        <p class="category-description">No similar items found for this search</p>
-                    </div>
-                </div>
-            `;
-            return;
-        }
 
-        // Create search results grid
-        const resultsHTML = `
-            <div class="search-results-section mb-5">
-                <div class="category-header mb-4">
-                    <h2 class="category-title">
-                        <i class="fas fa-search me-3"></i>
-                        Search Results
-                        <span class="badge bg-coastal-accent ms-3">${images.length}</span>
-                    </h2>
-                    <p class="category-description">Your search found these shell craft items</p>
-                </div>
-                <div class="image-grid" id="search-results-grid">
-                    ${images.map(item => `
-                        <div class="image-item" data-item-id="${item.id}">
-                            <div class="image-card">
-                                <img src="/static/images/${item.local_image}" 
-                                     alt="${item.title || 'Shell craft'}" 
-                                     class="img-fluid" 
-                                     loading="lazy"
-                                     data-bs-toggle="modal" 
-                                     data-bs-target="#imageModal"
-                                     data-title="${item.title || 'Shell Craft'}"
-                                     data-url="${item.source_url || '#'}"
-                                     data-platform="${item.platform || 'Unknown'}"
-                                     data-category="${item.category || 'Craft'}">
-                                <div class="image-overlay">
-                                    <div class="overlay-content">
-                                        <h6 class="overlay-title">${item.title || 'Shell Craft'}</h6>
-                                        <p class="overlay-platform">${item.platform || 'Unknown Source'}</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    `).join('')}
-                </div>
-            </div>
-        `;
-        
-        resultsSection.innerHTML = resultsHTML;
-    }
 
     async loadInitialData() {
         // Don't load any images initially - only load when user performs a search
@@ -421,11 +360,24 @@ class ShellGallery {
             <div class="image-grid" id="search-grid"></div>
         `;
         
+        console.log('Search results to display:', this.searchResults);
+        
         if (this.searchResults.length > 0) {
             this.renderImages(this.searchResults, 'search', true);
         } else {
-            // Don't show empty state for search results - handled in displaySearchResults
-            console.log('No search results to display');
+            // Show that no results were found
+            const grid = document.getElementById('search-grid');
+            if (grid) {
+                grid.innerHTML = `
+                    <div class="col-12 text-center py-5">
+                        <div class="empty-state">
+                            <i class="fas fa-search fa-3x text-muted mb-3"></i>
+                            <h4 class="text-muted">No images found</h4>
+                            <p class="text-muted">Try searching with different keywords</p>
+                        </div>
+                    </div>
+                `;
+            }
         }
     }
     

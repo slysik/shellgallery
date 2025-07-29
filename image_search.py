@@ -76,18 +76,30 @@ class ImageSearcher:
     def search_duckduckgo_images(self, query: str, limit: int = 10) -> List[Dict[str, Any]]:
         """Search DuckDuckGo Images for shell craft images"""
         try:
-            # Get search token first
+            # First make a request to get the vqd token
             search_url = "https://duckduckgo.com/"
             response = requests.get(search_url, headers=self.get_headers(), timeout=10)
             response.raise_for_status()
             
-            # Extract vqd token needed for image search
-            vqd_match = re.search(r'vqd=([\d-]+)', response.text)
-            if not vqd_match:
-                logger.error("Could not extract DuckDuckGo vqd token")
-                return []
+            # Try multiple patterns to extract vqd token
+            vqd_patterns = [
+                r'vqd=([\d-]+)',
+                r'"vqd":"([\d-]+)"',
+                r'vqd":\s*"([\d-]+)"',
+                r'vqd=([^&,\s]+)'
+            ]
             
-            vqd = vqd_match.group(1)
+            vqd = None
+            for pattern in vqd_patterns:
+                vqd_match = re.search(pattern, response.text)
+                if vqd_match:
+                    vqd = vqd_match.group(1)
+                    break
+            
+            if not vqd:
+                # If we can't get vqd token, skip DuckDuckGo and return empty
+                logger.warning("Could not extract DuckDuckGo vqd token - skipping DuckDuckGo search")
+                return []
             
             # Perform image search
             image_search_url = "https://duckduckgo.com/i.js"
