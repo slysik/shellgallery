@@ -165,6 +165,7 @@ class ShellGallery {
 
             const formData = new FormData();
             formData.append('image', imageUpload.files[0]);
+            formData.append('fresh_search', 'true'); // Force fresh search
 
             const response = await fetch('/api/upload-search', {
                 method: 'POST',
@@ -172,12 +173,15 @@ class ShellGallery {
             });
 
             const data = await response.json();
+            console.log('Similar search response:', data); // Debug log
             
             if (data.success) {
                 // Display search results and show success message
-                await this.displaySearchResults(data.images || []);
-                const imageCount = data.images ? data.images.length : 0;
-                this.showSuccess(`Found ${imageCount} similar shell crafts`);
+                const images = data.images || [];
+                console.log('Images to display:', images); // Debug log
+                
+                await this.displaySearchResults(images);
+                this.showSuccess(`Found ${images.length} similar shell crafts`);
                 
                 // Clear the image upload
                 imageUpload.value = '';
@@ -323,7 +327,8 @@ class ShellGallery {
                 },
                 body: JSON.stringify({
                     query: query,
-                    limit: 12
+                    limit: 12,
+                    fresh_search: true
                 })
             });
             

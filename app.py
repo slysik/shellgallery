@@ -122,6 +122,12 @@ def upload_search():
                 'error': 'No image selected'
             }), 400
         
+        # Check if this is a fresh search request
+        fresh_search = request.form.get('fresh_search') == 'true'
+        if fresh_search:
+            logger.info("Fresh search requested - clearing upload_search category")
+            data_manager.clear_category('upload_search')
+        
         # Check file type - also exclude HEIC which isn't supported by browsers
         allowed_extensions = {'.jpg', '.jpeg', '.png', '.webp', '.gif'}
         filename = file.filename or ''
@@ -189,8 +195,14 @@ def scrape_new_content():
             data = request.get_json()
             query = data.get('query', '') if data else ''
             limit = data.get('limit', 12) if data else 12
+            fresh_search = data.get('fresh_search', False) if data else False
             
             logger.info(f"Search-based scraping for query: {query}")
+            
+            # Clear search results if fresh search requested
+            if fresh_search:
+                logger.info("Fresh search requested - clearing search_results category")
+                data_manager.clear_category('search_results')
             
             # Search for real data using Google Image Search API
             results = {}

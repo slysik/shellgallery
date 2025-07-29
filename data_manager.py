@@ -329,6 +329,36 @@ class DataManager:
         
         logger.info(f"Deleted item {image_id}")
         return True
+    
+    def clear_category(self, category: str) -> bool:
+        """Clear all items from a specific category"""
+        try:
+            metadata = self._load_metadata()
+            
+            # Remove images from filesystem for this category
+            removed_count = 0
+            for item_id, item_data in list(metadata.items()):
+                if item_data.get('category') == category:
+                    # Remove image file
+                    local_image = item_data.get('local_image')
+                    if local_image:
+                        image_path = os.path.join(self.images_dir, local_image)
+                        if os.path.exists(image_path):
+                            os.remove(image_path)
+                            logger.info(f"Removed image file: {local_image}")
+                    
+                    # Remove item from metadata
+                    del metadata[item_id]
+                    removed_count += 1
+            
+            # Save updated metadata
+            self._save_metadata(metadata)
+            logger.info(f"Cleared {removed_count} items from category: {category}")
+            return True
+            
+        except Exception as e:
+            logger.error(f"Error clearing category {category}: {str(e)}")
+            return False
 
     def cleanup_orphaned_images(self) -> int:
         """Remove image files that don't have corresponding metadata"""
