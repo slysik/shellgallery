@@ -243,6 +243,36 @@ class DataManager:
         matching_items.sort(key=relevance_score, reverse=True)
         
         return matching_items
+    
+    def get_images_by_category(self, category: str, limit: int = 12, offset: int = 0) -> List[Dict[str, Any]]:
+        """Get images filtered by category"""
+        metadata = self._load_metadata()
+        category_images = []
+        
+        for item_id, item_data in metadata.items():
+            if item_data.get('category') == category and item_data.get('local_image'):
+                category_images.append(item_data)
+        
+        # Sort by saved_date (newest first)
+        category_images.sort(key=lambda x: x.get('saved_date', 0), reverse=True)
+        
+        # Apply pagination
+        return category_images[offset:offset + limit]
+    
+    def get_all_images(self, limit: int = 12, offset: int = 0) -> List[Dict[str, Any]]:
+        """Get all images across all categories"""
+        metadata = self._load_metadata()
+        all_images = []
+        
+        for item_id, item_data in metadata.items():
+            if item_data.get('local_image'):
+                all_images.append(item_data)
+        
+        # Sort by saved_date (newest first)
+        all_images.sort(key=lambda x: x.get('saved_date', 0), reverse=True)
+        
+        # Apply pagination
+        return all_images[offset:offset + limit]
 
     def get_image_by_id(self, image_id: str) -> Optional[Dict[str, Any]]:
         """Get specific image by ID"""

@@ -208,6 +208,31 @@ def scrape_new_content():
             'error': f'Scraping failed: {str(e)}'
         }), 500
 
+@app.route('/api/gallery')
+def get_gallery_images():
+    """Get images for gallery display"""
+    try:
+        category = request.args.get('category', 'all')
+        limit = request.args.get('limit', 12, type=int)
+        offset = request.args.get('offset', 0, type=int)
+        
+        if category == 'all':
+            images = data_manager.get_all_images(limit=limit, offset=offset)
+        else:
+            images = data_manager.get_images_by_category(category, limit=limit, offset=offset)
+        
+        return jsonify({
+            'success': True,
+            'images': images,
+            'category': category
+        })
+    except Exception as e:
+        logger.error(f"Error getting gallery images: {str(e)}")
+        return jsonify({
+            'success': False,
+            'error': 'Failed to load gallery images'
+        }), 500
+
 @app.route('/api/image/<image_id>')
 def get_image_details(image_id):
     """Get detailed information about a specific image"""
