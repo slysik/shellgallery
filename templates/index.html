@@ -69,7 +69,9 @@
                         <!-- 2. Find Similar Images -->
                         <div class="search-method">
                             <h6 class="text-muted mb-2"><strong>2. Find Similar Images</strong></h6>
-                            <div class="row g-2 align-items-end">
+                            
+                            <!-- Upload Area -->
+                            <div class="row g-2 mb-3">
                                 <div class="col-md-8">
                                     <div class="upload-area border-2 border-dashed rounded p-3 text-center" id="upload-area">
                                         <input type="file" class="d-none" id="imageUpload" accept="image/*">
@@ -85,7 +87,46 @@
                                     </div>
                                 </div>
                                 <div class="col-md-4">
-                                    <button class="btn btn-coastal-secondary" type="button" id="findSimilarBtn" disabled data-bs-toggle="modal" data-bs-target="#visualSearchModal" style="min-width: 110px; width: 110px;">
+                                    <div class="d-grid">
+                                        <small class="text-muted mb-1">Upload image first</small>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Keywords Input -->
+                            <div class="row g-2 mb-3" id="keywords-section" style="display: none;">
+                                <div class="col-1">
+                                    <span class="input-group-text h-100">
+                                        <i class="fas fa-tags"></i>
+                                    </span>
+                                </div>
+                                <div class="col">
+                                    <input type="text" 
+                                           id="visualKeywords" 
+                                           class="form-control" 
+                                           placeholder="Optional: vintage, coastal, handmade, blue..."
+                                           aria-label="Descriptive keywords">
+                                </div>
+                            </div>
+
+                            <!-- Search Type and Button -->
+                            <div class="row g-2" id="search-options" style="display: none;">
+                                <div class="col-md-8">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="visualSearchType" id="basicVisual" value="basic" checked>
+                                        <label class="form-check-label" for="basicVisual">
+                                            <strong>Basic Visual Search</strong> - Traditional similarity matching
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="visualSearchType" id="enhancedVisual" value="visual_enhanced">
+                                        <label class="form-check-label" for="enhancedVisual">
+                                            <strong>AI-Enhanced Search</strong> - AI analyzes image + combines with keywords
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <button class="btn btn-coastal-secondary" type="button" id="findSimilarBtn" style="min-width: 110px; width: 110px;">
                                         <i class="fas fa-images me-1"></i>Find Similar
                                     </button>
                                 </div>

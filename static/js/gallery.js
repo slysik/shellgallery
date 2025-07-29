@@ -63,8 +63,8 @@ class ShellGallery {
         // Image upload functionality
         this.setupImageUpload();
         
-        // Enhanced visual search modal
-        this.setupVisualSearchModal();
+        // Find Similar button
+        this.setupFindSimilarButton();
     }
 
     setupVisualSearchModal() {
@@ -261,7 +261,11 @@ class ShellGallery {
         const uploadPreview = document.getElementById('upload-preview');
         const previewImg = document.getElementById('preview-img');
         const previewName = document.getElementById('preview-name');
-        const findSimilarBtn = document.getElementById('findSimilarBtn');
+        const keywordsSection = document.getElementById('keywords-section');
+        const searchOptions = document.getElementById('search-options');
+
+        // Store the uploaded file
+        this.uploadedFile = file;
 
         // Show preview
         const reader = new FileReader();
@@ -271,7 +275,10 @@ class ShellGallery {
             
             uploadPrompt.classList.add('d-none');
             uploadPreview.classList.remove('d-none');
-            findSimilarBtn.disabled = false;
+            
+            // Show the keywords and search options
+            keywordsSection.style.display = 'block';
+            searchOptions.style.display = 'block';
         };
         reader.readAsDataURL(file);
     }
@@ -800,6 +807,75 @@ class ShellGallery {
             toastBody.textContent = message;
             const bootstrapToast = new bootstrap.Toast(toast);
             bootstrapToast.show();
+        }
+    }
+
+    setupFindSimilarButton() {
+        const findSimilarBtn = document.getElementById('findSimilarBtn');
+        
+        if (findSimilarBtn) {
+            findSimilarBtn.addEventListener('click', () => {
+                this.performVisualSearch();
+            });
+        }
+    }
+
+    async performVisualSearch() {
+        if (!this.uploadedFile) {
+            this.showError('Please upload an image first');
+            return;
+        }
+
+        const keywords = document.getElementById('visualKeywords').value.trim();
+        const searchType = document.querySelector('input[name="visualSearchType"]:checked').value;
+
+        try {
+            // Show loading state for Find Similar button only
+            this.setFindSimilarLoading(true);
+            this.clearAllCategories();
+
+            // Create form data
+            const formData = new FormData();
+            formData.append('image', this.uploadedFile);
+            formData.append('keywords', keywords);
+            formData.append('search_type', searchType);
+
+            // Upload and search
+            const response = await fetch('/api/upload_search', {
+                method: 'POST',
+                body: formData
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                this.searchResults = data.images || [];
+                this.displaySearchResults();
+                const imageCount = this.searchResults.length;
+                const searchTypeText = searchType === 'visual_enhanced' ? 'AI-enhanced' : 'Basic';
+                this.showSuccess(`${searchTypeText} search found ${imageCount} similar items${keywords ? ' using your keywords' : ''}`);
+            } else {
+                this.showError('Visual search failed: ' + (data.error || 'Unknown error'));
+            }
+
+        } catch (error) {
+            console.error('Visual search error:', error);
+            this.showError('Visual search failed due to network error');
+        } finally {
+            this.setFindSimilarLoading(false);
+        }
+    }
+
+    setFindSimilarLoading(isLoading) {
+        const findSimilarBtn = document.getElementById('findSimilarBtn');
+        if (!findSimilarBtn) return;
+
+        if (isLoading) {
+            findSimilarBtn.disabled = true;
+            findSimilarBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Searching...';
+        } else {
+            findSimilarBtn.disabled = false;
+            findSimilarBtn.innerHTML = '<i class="fas fa-images me-1"></i>Find Similar';
         }
     }
 }
