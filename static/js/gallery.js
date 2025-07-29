@@ -257,6 +257,12 @@ class ShellGallery {
         // Don't load any images initially - only load when user performs a search
         console.log('Gallery initialized - no initial images loaded');
     }
+    
+    async loadCategoryImages(category, limit = 6, offset = 0) {
+        if (this.isLoading[category]) return;
+        
+        this.isLoading[category] = true;
+        this.showLoading(category, true);
         
         try {
             const response = await fetch(`/api/category/${category}?limit=${limit}&offset=${offset}`);
