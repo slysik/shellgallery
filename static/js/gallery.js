@@ -145,6 +145,9 @@ class ShellGallery {
         }
 
         try {
+            // Clear previous results first
+            this.clearAllCategories();
+            
             similarSearchBtn.disabled = true;
             similarSearchBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Searching...';
 
@@ -159,9 +162,8 @@ class ShellGallery {
             const data = await response.json();
             
             if (data.success) {
-                // Clear previous results first, then refresh gallery
-                this.clearAllCategories();
-                this.loadAllCategories();
+                // Refresh gallery with new results
+                await this.loadAllCategories();
                 this.updateCategoryCounts();
             } else {
                 alert(`Search failed: ${data.error}`);
