@@ -422,7 +422,7 @@ class ShellGallery {
         card.className = 'image-card';
         card.setAttribute('data-image-id', imageData.id);
         
-        // Determine image source
+        // Determine image source - always prefer local image if available
         const imageUrl = imageData.local_image 
             ? `/images/${imageData.local_image}` 
             : imageData.image_url;
@@ -450,7 +450,7 @@ class ShellGallery {
                         <i class="fas fa-${this.getPlatformIcon(imageData.platform)} me-1"></i>
                         ${imageData.platform || 'Source'}
                     </span>
-                    <span class="badge bg-coastal-secondary">${categoryName}</span>
+                    ${imageData.category !== 'upload_search' ? `<span class="badge bg-coastal-secondary">${categoryName}</span>` : ''}
                 </div>
             </div>
         `;

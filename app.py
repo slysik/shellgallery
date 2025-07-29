@@ -307,6 +307,8 @@ def scrape_new_content():
             'error': f'Scraping failed: {str(e)}'
         }), 500
 
+
+
 @app.route('/api/gallery')
 def get_gallery_images():
     """Get images for gallery display"""

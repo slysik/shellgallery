@@ -43,18 +43,24 @@
                 <div class="col-md-10">
                     <div class="search-card">
                         <!-- Text Search -->
-                        <div class="input-group mb-3">
-                            <span class="input-group-text">
-                                <i class="fas fa-search"></i>
-                            </span>
-                            <input type="text" 
-                                   id="searchInput" 
-                                   class="form-control" 
-                                   placeholder="Search shell crafts, frames, boxes..."
-                                   aria-label="Search shell crafts">
-                            <button class="btn btn-coastal-secondary btn-sm" type="button" id="searchBtn">
-                                <i class="fas fa-search me-1"></i>Search
-                            </button>
+                        <div class="row g-2 mb-3">
+                            <div class="col-1">
+                                <span class="input-group-text h-100">
+                                    <i class="fas fa-search"></i>
+                                </span>
+                            </div>
+                            <div class="col">
+                                <input type="text" 
+                                       id="searchInput" 
+                                       class="form-control" 
+                                       placeholder="Search shell crafts, frames, boxes..."
+                                       aria-label="Search shell crafts">
+                            </div>
+                            <div class="col-auto">
+                                <button class="btn btn-coastal-secondary btn-sm" type="button" id="searchBtn" style="min-width: 110px; width: 110px;">
+                                    <i class="fas fa-search me-1"></i>Search
+                                </button>
+                            </div>
                         </div>
 
                         <!-- Image Upload Search -->
@@ -74,7 +80,7 @@
                                 </div>
                             </div>
                             <div class="col-md-4">
-                                <button class="btn btn-coastal-secondary btn-sm" type="button" id="similarSearchBtn" disabled>
+                                <button class="btn btn-coastal-secondary btn-sm" type="button" id="similarSearchBtn" disabled style="min-width: 110px; width: 110px;">
                                     <i class="fas fa-images me-1"></i>Find Similar
                                 </button>
                             </div>
