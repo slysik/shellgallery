@@ -181,7 +181,10 @@ class ShellGallery {
                 console.log('Images to display:', images); // Debug log
                 
                 await this.displaySearchResults(images);
-                this.showSuccess(`Found ${images.length} similar shell crafts`);
+                // Only show success message if we have results
+                if (images.length > 0) {
+                    this.showSuccess(`Found ${images.length} similar shell crafts`);
+                }
                 
                 // Clear the image upload
                 imageUpload.value = '';
@@ -208,7 +211,24 @@ class ShellGallery {
 
     async displaySearchResults(images) {
         const resultsSection = document.querySelector('.categories-section');
-        if (!resultsSection || !images || images.length === 0) {
+        if (!resultsSection) {
+            return;
+        }
+        
+        // Always display results section, even if empty
+        if (!images || images.length === 0) {
+            resultsSection.innerHTML = `
+                <div class="search-results-section mb-5">
+                    <div class="category-header mb-4">
+                        <h2 class="category-title">
+                            <i class="fas fa-search me-3"></i>
+                            Search Results
+                            <span class="badge bg-coastal-accent ms-3">0</span>
+                        </h2>
+                        <p class="category-description">No similar items found for this search</p>
+                    </div>
+                </div>
+            `;
             return;
         }
 
@@ -404,7 +424,8 @@ class ShellGallery {
         if (this.searchResults.length > 0) {
             this.renderImages(this.searchResults, 'search', true);
         } else {
-            this.showEmptyState('search', 'No results found', 'Try different search terms or browse categories below.');
+            // Don't show empty state for search results - handled in displaySearchResults
+            console.log('No search results to display');
         }
     }
     
