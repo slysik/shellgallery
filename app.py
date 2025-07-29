@@ -114,13 +114,39 @@ def scrape_new_content():
             
             logger.info(f"Search-based scraping for query: {query}")
             
-            # Generate sample data based on search query
+            # Search for real data using Firecrawl API with the user's query
             results = {}
-            for cat in ['picture_frames', 'shadow_boxes', 'jewelry_boxes', 'display_cases']:
-                logger.info(f"Loading sample data for {cat} with query: {query}")
-                scraped_data = direct_scraper.get_sample_data_if_needed(cat, limit//4)
-                saved_count = data_manager.save_scraped_data(scraped_data, cat)
-                results[cat] = saved_count
+            search_query = f"{query} shell crafts handmade"
+            
+            try:
+                # Use Firecrawl to search for real content
+                scraped_data = shell_searcher.firecrawl_search(search_query, limit)
+                
+                if scraped_data:
+                    # Distribute results across categories based on content
+                    for item in scraped_data:
+                        # Determine category based on content
+                        content = (item.get('title', '') + ' ' + item.get('description', '')).lower()
+                        
+                        if 'frame' in content or 'photo' in content:
+                            category = 'picture_frames'
+                        elif 'shadow box' in content or 'display' in content:
+                            category = 'shadow_boxes'  
+                        elif 'jewelry' in content or 'box' in content:
+                            category = 'jewelry_boxes'
+                        else:
+                            category = 'display_cases'
+                        
+                        # Save individual items
+                        saved_count = data_manager.save_scraped_data([item], category)
+                        results[category] = results.get(category, 0) + saved_count
+                else:
+                    logger.warning(f"No real data found for query: {search_query}")
+                    results = {'picture_frames': 0, 'shadow_boxes': 0, 'jewelry_boxes': 0, 'display_cases': 0}
+                    
+            except Exception as e:
+                logger.error(f"Error searching with Firecrawl: {str(e)}")
+                results = {'picture_frames': 0, 'shadow_boxes': 0, 'jewelry_boxes': 0, 'display_cases': 0}
         else:
             # Handle category-based scraping (GET request)
             category = request.args.get('category', 'all')
@@ -134,19 +160,34 @@ def scrape_new_content():
                 for cat in ['picture_frames', 'shadow_boxes', 'jewelry_boxes', 'display_cases']:
                     logger.info(f"Scraping category: {cat}")
                     
-                    # Generate working sample data (Firecrawl has persistent network issues)
-                    logger.info(f"Loading sample data for {cat}")
-                    scraped_data = direct_scraper.get_sample_data_if_needed(cat, limit//4)
-                    
-                    saved_count = data_manager.save_scraped_data(scraped_data, cat)
-                    results[cat] = saved_count
+                    # Use Firecrawl to search for real shell craft content
+                    try:
+                        search_terms = shell_searcher.category_search_terms.get(cat, [])
+                        if search_terms:
+                            search_query = f"{search_terms[0]} handmade shell craft"
+                            scraped_data = shell_searcher.firecrawl_search(search_query, limit//4)
+                            saved_count = data_manager.save_scraped_data(scraped_data, cat)
+                            results[cat] = saved_count
+                        else:
+                            results[cat] = 0
+                    except Exception as e:
+                        logger.error(f"Error scraping {cat}: {str(e)}")
+                        results[cat] = 0
             else:
                 # Single category
                 logger.info(f"Scraping category: {category}")
                 
-                # Generate working sample data (Firecrawl has persistent network issues)
-                logger.info(f"Loading sample data for {category}")
-                scraped_data = direct_scraper.get_sample_data_if_needed(category, limit)
+                # Use Firecrawl to search for real shell craft content
+                try:
+                    search_terms = shell_searcher.category_search_terms.get(category, [])
+                    if search_terms:
+                        search_query = f"{search_terms[0]} handmade shell craft"
+                        scraped_data = shell_searcher.firecrawl_search(search_query, limit)
+                    else:
+                        scraped_data = []
+                except Exception as e:
+                    logger.error(f"Error scraping {category}: {str(e)}")
+                    scraped_data = []
                 
                 saved_count = data_manager.save_scraped_data(scraped_data, category)
                 results = {category: saved_count}
