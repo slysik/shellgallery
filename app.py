@@ -4,6 +4,7 @@ from flask import Flask, render_template, jsonify, request, send_from_directory
 from flask_cors import CORS
 from dotenv import load_dotenv
 from shell_search import ShellSearcher
+from direct_scraper import DirectWebScraper
 from data_manager import DataManager
 from config import Config
 
@@ -22,6 +23,7 @@ CORS(app)
 # Initialize components
 config = Config()
 shell_searcher = ShellSearcher(config.FIRECRAWL_API_KEY)
+direct_scraper = DirectWebScraper()
 data_manager = DataManager()
 
 @app.route('/')
@@ -107,26 +109,52 @@ def scrape_new_content():
         category = request.args.get('category', 'all')
         limit = request.args.get('limit', 10, type=int)
         
+        # Try Firecrawl first, fallback to direct scraping
+        logger.info("Attempting to scrape real shell craft data...")
+        
         if category == 'all':
-            # Scrape all categories using Firecrawl
             results = {}
             for cat in ['picture_frames', 'shadow_boxes', 'jewelry_boxes', 'display_cases']:
-                logger.info(f"Scraping category with Firecrawl: {cat}")
-                scraped_data = shell_searcher.search_category(cat, limit=limit)
+                logger.info(f"Scraping category: {cat}")
+                
+                # Try Firecrawl first
+                try:
+                    scraped_data = shell_searcher.search_category(cat, limit=limit//4)
+                    if not scraped_data:
+                        raise Exception("No Firecrawl results")
+                except Exception as e:
+                    logger.warning(f"Firecrawl failed for {cat}, using direct scraping: {str(e)}")
+                    scraped_data = direct_scraper.search_category(cat, limit=limit//4)
+                
                 saved_count = data_manager.save_scraped_data(scraped_data, cat)
                 results[cat] = saved_count
         else:
-            # Scrape specific category using Firecrawl
-            logger.info(f"Scraping category with Firecrawl: {category}")
-            scraped_data = shell_searcher.search_category(category, limit=limit)
+            # Single category
+            logger.info(f"Scraping category: {category}")
+            
+            try:
+                scraped_data = shell_searcher.search_category(category, limit=limit)
+                if not scraped_data:
+                    raise Exception("No Firecrawl results")
+            except Exception as e:
+                logger.warning(f"Firecrawl failed, using direct scraping: {str(e)}")
+                scraped_data = direct_scraper.search_category(category, limit=limit)
+            
             saved_count = data_manager.save_scraped_data(scraped_data, category)
             results = {category: saved_count}
         
         total_results = sum(results.values())
+        if total_results == 0:
+            return jsonify({
+                'success': False,
+                'results': results,
+                'message': 'No shell craft projects found. Please try again.'
+            })
+        
         return jsonify({
             'success': True,
             'results': results,
-            'message': f'Successfully scraped {total_results} real shell craft projects!'
+            'message': f'Found {total_results} real shell craft projects!'
         })
         
     except Exception as e:

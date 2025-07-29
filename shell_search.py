@@ -20,35 +20,31 @@ class ShellSearcher:
             "Content-Type": "application/json"
         }
         
-        # Category-specific search terms
+        # Category-specific search terms - simplified for better API results
         self.search_terms = {
             'picture_frames': [
-                "handcrafted shell picture frame DIY",
-                "handmade shell frame craft",
-                "DIY seashell photo frame",
-                "coastal picture frame shells",
-                "beach memory frame shells"
+                "shell picture frame",
+                "seashell photo frame", 
+                "beach frame craft",
+                "coastal frame shells"
             ],
             'shadow_boxes': [
-                "shell shadow box display",
-                "seashell collection shadow box", 
-                "beach memory shadow box",
-                "coastal specimen frame",
-                "shell display case vintage"
+                "shell shadow box",
+                "seashell collection box",
+                "beach memory box",
+                "shell display frame"
             ],
             'jewelry_boxes': [
-                "handcrafted shell jewelry box",
-                "handmade shell storage box",
-                "artisan shell keepsake box",
-                "DIY shell treasure box",
-                "coastal jewelry box shells"
+                "shell jewelry box",
+                "seashell storage box",
+                "coastal jewelry box",
+                "shell treasure box"
             ],
             'display_cases': [
-                "shell specimen display case",
-                "museum shell collection display",
-                "educational shell exhibit",
-                "shell conservation display",
-                "scientific shell presentation"
+                "shell display case",
+                "seashell collection display",
+                "shell specimen case",
+                "shell museum display"
             ]
         }
         
@@ -62,38 +58,39 @@ class ShellSearcher:
         """Use Firecrawl search API to find content"""
         try:
             url = f"{self.base_url}/v0/search"
+            # Simplify query for better results
+            clean_query = query.replace("site:", "").replace("handcrafted", "").replace("DIY", "craft")
+            
             payload = {
-                "query": query,
+                "query": clean_query,
+                "limit": min(limit, 10),
                 "pageOptions": {
-                    "onlyMainContent": True
-                },
-                "limit": limit,
-                "scrapeOptions": {
-                    "formats": ["markdown", "html"],
                     "onlyMainContent": True,
-                    "removeCSS": True,
-                    "removeJS": True
+                    "includeImages": True
                 }
             }
             
-            logger.info(f"Searching Firecrawl for: {query}")
-            response = requests.post(url, headers=self.headers, json=payload, timeout=45)
+            logger.info(f"Searching Firecrawl for: {clean_query}")
+            response = requests.post(url, headers=self.headers, json=payload, timeout=20)
             
             if response.status_code == 200:
                 data = response.json()
-                return data.get('data', [])
+                results = data.get('data', [])
+                if not results:
+                    logger.warning(f"No results found for: {clean_query}")
+                return results
             else:
-                logger.error(f"Firecrawl search failed: {response.status_code} - {response.text}")
+                logger.error(f"Firecrawl API error: {response.status_code} - {response.text}")
                 return []
                 
         except requests.exceptions.Timeout:
-            logger.error(f"Firecrawl search timeout for query: {query}")
+            logger.error(f"Firecrawl timeout for: {query}")
             return []
         except requests.exceptions.ConnectionError:
-            logger.error(f"Firecrawl connection error for query: {query}")
+            logger.error(f"Firecrawl connection error for: {query}")
             return []
         except Exception as e:
-            logger.error(f"Error in Firecrawl search: {str(e)}")
+            logger.error(f"Firecrawl error: {str(e)}")
             return []
 
     def firecrawl_scrape(self, url: str) -> Optional[Dict[str, Any]]:
